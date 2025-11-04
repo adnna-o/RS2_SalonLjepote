@@ -1,1 +1,1 @@
-# RS2_SalonLjepote
+# eSalonLjepoteApp
