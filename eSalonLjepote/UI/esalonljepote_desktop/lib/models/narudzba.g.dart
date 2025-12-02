@@ -36,5 +36,4 @@ Map<String, dynamic> _$NarudzbaToJson(Narudzba instance) => <String, dynamic>{
       'iznosNarudzbe': instance.iznosNarudzbe,
       'korisnik': instance.korisnik,
       'proizvod': instance.proizvod,
-
     };

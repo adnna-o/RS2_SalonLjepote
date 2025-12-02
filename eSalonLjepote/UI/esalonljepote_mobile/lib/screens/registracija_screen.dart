@@ -18,6 +18,9 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
   String prezime = '';
   String korisnickoIme = '';
   String email = '';
+  String datumRodjenja = '';
+  String telefon = '';
+  String spol = '';
   String lozinka = '';
   String potvrdaLozinke = '';
 
@@ -33,6 +36,9 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
         prezime: prezime,
         korisnickoIme: korisnickoIme,
         email: email,
+        datumRodjenja: datumRodjenja,
+        telefon: telefon,
+        spol: spol,
         lozinka: lozinka,
       );
 
@@ -57,7 +63,6 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
       body: LayoutBuilder(builder: (context, constraints) {
         return Stack(
           children: [
-            // Gradient pozadina
             Container(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
@@ -68,7 +73,6 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
               ),
             ),
 
-            // Scrollable sadržaj
             Center(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
@@ -104,7 +108,7 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
                               height: 100,
                             ),
                           ),
-                          const SizedBox(height: 30),
+                          const SizedBox(height: 20),
                           _buildInputField(
                             label: 'First name',
                             icon: Icons.person,
@@ -112,7 +116,7 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
                             validator: (val) =>
                                 val!.isEmpty ? 'Enter first name' : null,
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 8),
                           _buildInputField(
                             label: 'Last name',
                             icon: Icons.person_outline,
@@ -120,7 +124,31 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
                             validator: (val) =>
                                 val!.isEmpty ? 'Enter last name' : null,
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 8),
+                           _buildInputField(
+                            label: 'DatumRodjenja',
+                            icon: Icons.date_range,
+                            onChanged: (val) => datumRodjenja = val,
+                            validator: (val) =>
+                                val!.isEmpty ? 'Enter datum rodjena' : null,
+                          ),
+                          const SizedBox(height: 8),
+                           _buildInputField(
+                            label: 'Telefon',
+                            icon: Icons.phone,
+                            onChanged: (val) => telefon = val,
+                            validator: (val) =>
+                                val!.isEmpty ? 'Enter telefon' : null,
+                          ),
+                          const SizedBox(height: 8),
+                           _buildInputField(
+                            label: 'Spol',
+                            icon: Icons.person,
+                            onChanged: (val) => spol = val,
+                            validator: (val) =>
+                                val!.isEmpty ? 'Enter spol' : null,
+                          ),
+                          const SizedBox(height: 8),
                           _buildInputField(
                             label: 'Username',
                             icon: Icons.account_circle,
@@ -128,7 +156,7 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
                             validator: (val) =>
                                 val!.isEmpty ? 'Enter username' : null,
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 8),
                           _buildInputField(
                             label: 'Email',
                             icon: Icons.email,
@@ -138,7 +166,7 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
                                 ? 'Incorrect email'
                                 : null,
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 8),
                           _buildInputField(
                             label: 'Password',
                             icon: Icons.lock,
@@ -147,7 +175,7 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
                             validator: (val) =>
                                 val!.length < 6 ? 'Min 6 characters' : null,
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 8),
                           _buildInputField(
                             label: 'Confirm password',
                             icon: Icons.lock_outline,

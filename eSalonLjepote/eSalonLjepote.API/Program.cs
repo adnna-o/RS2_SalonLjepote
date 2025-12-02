@@ -4,22 +4,17 @@ using eSalonLjepote.API.Filters;
 using eSalonLjepote.Service.Database;
 using eSalonLjepote.Service.RabbitMQ;
 using eSalonLjepote.Service.Service;
-using eSalonLjepote.Service.Service;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-
-// Add services to the container.
-
-//builder.Services.AddTransient<IKorisnikService, KorisnikService>();
+// ========================================
+//  DEPENDENCY INJECTION
+// ========================================
 builder.Services.AddTransient<IKorisnikService, KorisnikService>();
-
 builder.Services.AddTransient<IAdministratorService, AdministratorService>();
 builder.Services.AddTransient<IUslugaService, UslugaService>();
 builder.Services.AddTransient<IZaposleniService, ZaposleniService>();
@@ -41,28 +36,38 @@ builder.Services.AddTransient<INarudzbaStavka, NarudzbaStavkaService>();
 
 builder.Services.AddScoped<IMailProducer, MailProducer>();
 
-
-
-
-
-builder.Services.AddControllers()
+// ========================================
+//  CONTROLLERS + JSON CONFIG
+// ========================================
+builder.Services
+    .AddControllers(options =>
+    {
+        options.Filters.Add<ErrorFilter>();  // globalni error handling
+    })
     .AddNewtonsoftJson(options =>
     {
-        options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
+        options.SerializerSettings.ContractResolver = new DefaultContractResolver
+        {
+            NamingStrategy = new CamelCaseNamingStrategy()
+        };
+        options.SerializerSettings.ReferenceLoopHandling =
+            Newtonsoft.Json.ReferenceLoopHandling.Ignore;
     });
 
-builder.Services.AddControllers(x =>
-{
-    x.Filters.Add<ErrorFilter>();
-});
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// ========================================
+//  SWAGGER / OPENAPI
+// ========================================
 builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddSwaggerGen(c =>
 {
+    c.CustomSchemaIds(type => type.FullName);
+
     c.AddSecurityDefinition("Basic", new OpenApiSecurityScheme
     {
         Type = SecuritySchemeType.Http,
-        Scheme = "basic"
+        Scheme = "basic",
+        Description = "Unesite username i password"
     });
 
     c.AddSecurityRequirement(new OpenApiSecurityRequirement()
@@ -80,28 +85,34 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
+
+// ========================================
+//  DATABASE
+// ========================================
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<ESalonLjepoteContext>(options => options.UseSqlServer(connectionString));
+builder.Services.AddDbContext<ESalonLjepoteContext>(options =>
+    options.UseSqlServer(connectionString));
 
-
+// ========================================
+//  AUTOMAPPER
+// ========================================
 builder.Services.AddAutoMapper(typeof(IKorisnikService));
 
+// ========================================
+//  AUTHENTICATION
+// ========================================
 builder.Services.AddAuthentication("BasicAuthentication")
-    .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
+    .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>(
+        "BasicAuthentication", null);
 
-builder.Services.AddControllers().AddNewtonsoftJson(options =>
-{
-    options.SerializerSettings.ContractResolver = new DefaultContractResolver
-    {
-        NamingStrategy = new CamelCaseNamingStrategy()
-    };
-    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
-});
-
-
+// ========================================
+//  BUILD APP
+// ========================================
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// ========================================
+//  MIDDLEWARE PIPELINE
+// ========================================
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -109,11 +120,14 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// ========================================
+//  AUTOMATSKE MIGRACIJE
+// ========================================
 using (var scope = app.Services.CreateScope())
 {
     var dataContext = scope.ServiceProvider.GetRequiredService<ESalonLjepoteContext>();

@@ -96,7 +96,21 @@ namespace eSalonLjepote.Service.Service
                 filteredQuery = filteredQuery.Where(x => x.Klijent.Korisnik.Prezime.Contains(search.PrezimeKlijenta.ToLower()));
             }
 
-            return filteredQuery;
+            if (search != null)
+            {
+                if (search.DatumTermina.HasValue && search.DatumTermina.Value != default(DateTime))
+                {
+                    var date = search.DatumTermina.Value.Date;
+                    var nextDay = date.AddDays(1);
+                    filteredQuery = filteredQuery.Where(n =>
+                        n.DatumTermina.HasValue &&
+                        n.DatumTermina.Value >= date &&
+                        n.DatumTermina.Value < nextDay
+                    );
+                }
+
+            }
+                return filteredQuery;
         }
 
        public async Task<Model.Models.Termini> Insert(TerminiInsertRequest insert)

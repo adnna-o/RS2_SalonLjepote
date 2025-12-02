@@ -505,6 +505,7 @@ namespace eSaljonLjepote.Services.Database
                     KorisnikId= 1002,
                     OpisRecenzije="Vrlo dobar",
                     Ocjena=5,
+                    DatumRecenzije = new DateTime(2024, 05, 05),
                 },
                 new Recenzije()
                 {
@@ -512,6 +513,8 @@ namespace eSaljonLjepote.Services.Database
                     KorisnikId = 1002,
                     OpisRecenzije = "Vrlo dobar",
                     Ocjena = 5,
+                    DatumRecenzije = new DateTime(2024, 05, 05),
+
                 },
                 new Recenzije()
                 {
@@ -519,6 +522,8 @@ namespace eSaljonLjepote.Services.Database
                     KorisnikId = 1002,
                     OpisRecenzije = "Vrlo dobar",
                     Ocjena = 5,
+                    DatumRecenzije = new DateTime(2024, 05, 05),
+
                 },
                 new Recenzije()
                 {
@@ -526,6 +531,8 @@ namespace eSaljonLjepote.Services.Database
                     KorisnikId = 1001,
                     OpisRecenzije = "Vrlo dobar",
                     Ocjena = 5,
+                    DatumRecenzije = new DateTime(2024, 05, 05),
+
                 },
                 new Recenzije()
                 {
@@ -533,6 +540,8 @@ namespace eSaljonLjepote.Services.Database
                     KorisnikId = 1002,
                     OpisRecenzije = "Vrlo dobar",
                     Ocjena = 3,
+                    DatumRecenzije = new DateTime(2024, 05, 05),
+
                 },
                 new Recenzije()
                 {
@@ -540,6 +549,8 @@ namespace eSaljonLjepote.Services.Database
                     KorisnikId = 1002,
                     OpisRecenzije = "Vrlo dobar",
                     Ocjena = 2,
+                    DatumRecenzije = new DateTime(2024, 05, 05),
+
                 },
                 new Recenzije()
                 {
@@ -547,6 +558,8 @@ namespace eSaljonLjepote.Services.Database
                     KorisnikId = 1002,
                     OpisRecenzije = "Vrlo dobar",
                     Ocjena = 2,
+                    DatumRecenzije = new DateTime(2024, 05, 05),
+
                 },
                 new Recenzije()
                 {
@@ -554,6 +567,8 @@ namespace eSaljonLjepote.Services.Database
                     KorisnikId = 1002,
                     OpisRecenzije = "Vrlo dobar",
                     Ocjena = 4,
+                    DatumRecenzije = new DateTime(2024, 05, 05),
+
                 },
                 new Recenzije()
                 {
@@ -561,6 +576,8 @@ namespace eSaljonLjepote.Services.Database
                     KorisnikId = 1001,
                     OpisRecenzije = "Vrlo dobar",
                     Ocjena = 2,
+                    DatumRecenzije = new DateTime(2024, 05, 05),
+
                 },
                 new Recenzije()
                 {
@@ -568,6 +585,8 @@ namespace eSaljonLjepote.Services.Database
                     KorisnikId = 1001,
                     OpisRecenzije = "Vrlo dobar",
                     Ocjena = 2,
+                    DatumRecenzije = new DateTime(2024, 05, 05),
+
                 },
                 new Recenzije()
                 {
@@ -575,6 +594,8 @@ namespace eSaljonLjepote.Services.Database
                     KorisnikId = 1001,
                     OpisRecenzije = "Vrlo dobar",
                     Ocjena = 4,
+                    DatumRecenzije = new DateTime(2024, 05, 05),
+
                 },
                 new Recenzije()
                 {
@@ -582,6 +603,8 @@ namespace eSaljonLjepote.Services.Database
                     KorisnikId = 1002,
                     OpisRecenzije = "Vrlo dobar",
                     Ocjena = 5,
+                    DatumRecenzije = new DateTime(2024, 05, 05),
+
                 },
                 new Recenzije()
                 {
@@ -589,6 +612,8 @@ namespace eSaljonLjepote.Services.Database
                     KorisnikId = 1002,
                     OpisRecenzije = "Vrlo dobar",
                     Ocjena = 1,
+                    DatumRecenzije = new DateTime(2024, 05, 05),
+
                 });
             #endregion
 
@@ -630,7 +655,8 @@ namespace eSaljonLjepote.Services.Database
                     UslugaId = 7110,
                     NazivUsluge = "Frizerske - Feniranje",
                     Cijena=10,
-                    Trajanje="30 minuta"
+                    Trajanje="30 minuta",
+                    Slika=galerijaSlika
 
                 },
                 new Usluga()
@@ -638,7 +664,9 @@ namespace eSaljonLjepote.Services.Database
                     UslugaId = 7111,
                     NazivUsluge = "Frizerske - Sisanje",
                     Cijena = 25,
-                    Trajanje = "1 sat"
+                    Trajanje = "1 sat",
+                    Slika = galerijaSlika
+
 
                 },
                 new Usluga()
@@ -646,7 +674,9 @@ namespace eSaljonLjepote.Services.Database
                     UslugaId = 7121,
                     NazivUsluge = "Frizerske - Sisanje",
                     Cijena = 25,
-                    Trajanje = "1 sat"
+                    Trajanje = "1 sat",
+                    Slika = galerijaSlika
+
 
                 },
                  new Usluga()
@@ -654,28 +684,36 @@ namespace eSaljonLjepote.Services.Database
                      UslugaId = 7112,
                      NazivUsluge = "Kozmeticke - manikir",
                      Cijena = 30,
-                     Trajanje = "1 sat"
+                     Trajanje = "1 sat",
+                     Slika = galerijaSlika
+
                  },
                   new Usluga()
                   {
                       UslugaId = 7113,
                       NazivUsluge = "Kozmeticke - pedikir",
                       Cijena = 30,
-                      Trajanje = "1 sat"
+                      Trajanje = "1 sat",
+                      Slika = galerijaSlika
+
                   },
                   new Usluga()
                   {
                       UslugaId = 7114,
                       NazivUsluge = "Sminkanje sa umjetnim trepavicama",
                       Cijena = 40,
-                      Trajanje = "1 sat"
+                      Trajanje = "1 sat",
+                      Slika = galerijaSlika
+
                   },
                    new Usluga()
                    {
                        UslugaId = 7115,
                        NazivUsluge = "Sminkanje bez umjetnim trepavicama",
                        Cijena = 35,
-                       Trajanje = "1 sat"
+                       Trajanje = "1 sat",
+                       Slika = galerijaSlika
+
                    });
             #endregion
 

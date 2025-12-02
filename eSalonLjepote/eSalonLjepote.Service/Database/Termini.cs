@@ -13,7 +13,7 @@ public partial class Termini
 
     public int ZaposleniId { get; set; }
 
-    public DateTime DatumTermina { get; set; }
+    public DateTime? DatumTermina { get; set; }
 
     public TimeSpan VrijemeTermina { get; set; }
     public string? BrojTransakcije {  get; set; }

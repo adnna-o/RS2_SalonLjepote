@@ -8,6 +8,7 @@ import 'package:esalonljepote_desktop/providers/proizvod_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/search_result.dart';
 
@@ -76,7 +77,6 @@ class _ProizvodDetailsScreenState extends State<ProizvodDetailsScreen> {
     return discard ?? false;
   }
 
-  @override
   @override
   Widget build(BuildContext context) {
     final screenTitle =
@@ -194,7 +194,9 @@ class _ProizvodDetailsScreenState extends State<ProizvodDetailsScreen> {
           'proizvodId': widget.proizvod?.proizvodId?.toString(),
           'nazivProizvoda': widget.proizvod?.nazivProizvoda,
           'slika': widget.proizvod?.slika,
-          'cijena': widget.proizvod?.cijena,
+          'cijena': widget.proizvod?.cijena != null
+              ? NumberFormat("#,##0.00", "bs").format(widget.proizvod!.cijena)
+              : null,
         },
         child: Column(
           children: [
@@ -360,7 +362,8 @@ class _ProizvodDetailsScreenState extends State<ProizvodDetailsScreen> {
                             final raw = (v ?? '').trim().replaceAll(',', '.');
                             final d = double.tryParse(raw);
                             if (raw.isEmpty) return 'Cijena je obavezna.';
-                            if (d == null) return 'Unesite ispravan broj.';
+                            if (d == null)
+                              return 'Unesite ispravan broj (npr. 7,50).';
                             if (d <= 0) return 'Cijena mora biti veća od 0.';
                             return null;
                           },
@@ -370,7 +373,7 @@ class _ProizvodDetailsScreenState extends State<ProizvodDetailsScreen> {
                   ),
                 ],
               ),
-            ),
+            )
           ],
         ));
   }

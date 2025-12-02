@@ -38,6 +38,7 @@ namespace eSalonLjepote.Service.Service
             var korisnik = base.Insert(request); 
 
             var uloga = _context.Ulogas.FirstOrDefault(u => u.NazivUloge == "Korisnik");
+
             if (uloga == null)
             {
                 uloga = new Uloga
@@ -53,6 +54,11 @@ namespace eSalonLjepote.Service.Service
                 KorisnikId = korisnik.KorisnikId,
                 UlogaId = uloga.UlogaId
             };
+            var klijent = new Klijenti
+            {
+                KorisnikId = korisnik.KorisnikId
+            };
+            _context.Klijentis.Add(klijent);
 
             _context.KorisnikUlogas.Add(korisnikUloga);
             _context.SaveChanges();

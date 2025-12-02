@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:esalonljepote_mobile/models/novosti.dart';
 import 'package:esalonljepote_mobile/models/search_result.dart';
@@ -7,6 +8,7 @@ import 'package:esalonljepote_mobile/providers/novosti_provider.dart';
 import 'package:esalonljepote_mobile/providers/usluga_provider.dart';
 import 'package:esalonljepote_mobile/widget/master_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -61,7 +63,6 @@ class _HomeScreen extends State<HomeScreen> {
                 ),
               ),
               Container(color: Colors.black.withOpacity(0.3)),
-
               SafeArea(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(16),
@@ -87,7 +88,6 @@ class _HomeScreen extends State<HomeScreen> {
                           ),
                         ),
                       ),
-
                       Text(
                         "Usluge koje nudimo",
                         style: TextStyle(
@@ -97,7 +97,6 @@ class _HomeScreen extends State<HomeScreen> {
                         ),
                       ),
                       const SizedBox(height: 12),
-
                       if (uslugaResult?.result != null &&
                           uslugaResult!.result.isNotEmpty)
                         CarouselSlider.builder(
@@ -116,29 +115,71 @@ class _HomeScreen extends State<HomeScreen> {
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
+                                    usluga.slika != null &&
+                                            usluga.slika!.isNotEmpty
+                                        ? ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                            child: Image.memory(
+                                              base64Decode(usluga.slika!),
+                                              height: 100,
+                                              width: double.infinity,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          )
+                                        : Container(
+                                            height: 100,
+                                            width: double.infinity,
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey[300],
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            child: const Center(
+                                                child: Text('Nema slike')),
+                                          ),
+                                    const SizedBox(height: 10),
                                     Text(
                                       usluga.nazivUsluge ?? "",
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
-                                        fontSize:
-                                            screenWidth < 500 ? 14 : 16,
+                                        fontSize: screenWidth < 500 ? 14 : 16,
                                       ),
                                     ),
                                     const SizedBox(height: 6),
-                                    Text(
-                                      "Cijena: ${usluga.cijena} KM",
-                                      style: TextStyle(
-                                        fontSize:
-                                            screenWidth < 500 ? 12 : 14,
-                                      ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        const Icon(Icons.attach_money,
+                                            size: 20, color: Colors.white),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          "${NumberFormat("#,##0.00", "bs").format(usluga.cijena)} KM",
+                                          style: TextStyle(
+                                              fontSize:
+                                                  screenWidth < 500 ? 12 : 14,
+                                              color: Colors.white),
+                                        ),
+                                      ],
                                     ),
-                                    Text(
-                                      "Trajanje: ${usluga.trajanje} min",
-                                      style: TextStyle(
-                                        fontSize:
-                                            screenWidth < 500 ? 12 : 14,
-                                      ),
+                                    const SizedBox(height: 6),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        const Icon(Icons.timer,
+                                            size: 20, color: Colors.white),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          "${usluga.trajanje} min",
+                                          style: TextStyle(
+                                              fontSize:
+                                                  screenWidth < 500 ? 12 : 14,
+                                              color: Colors.white),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
@@ -146,16 +187,14 @@ class _HomeScreen extends State<HomeScreen> {
                             );
                           },
                           options: CarouselOptions(
-                            height: screenWidth < 500 ? 180 : 200,
+                            height: screenWidth < 600 ? 300 : 350,
                             viewportFraction: screenWidth < 600 ? 0.8 : 0.33,
                             enlargeCenterPage: true,
                             autoPlay: true,
-                            autoPlayInterval:
-                                const Duration(seconds: 3),
+                            autoPlayInterval: const Duration(seconds: 3),
                           ),
                         ),
                       const SizedBox(height: 24),
-
                       Text(
                         "Novosti",
                         style: TextStyle(
@@ -165,7 +204,6 @@ class _HomeScreen extends State<HomeScreen> {
                         ),
                       ),
                       const SizedBox(height: 12),
-
                       if (novostiResult?.result != null &&
                           novostiResult!.result.isNotEmpty)
                         GridView.builder(
@@ -202,41 +240,77 @@ class _HomeScreen extends State<HomeScreen> {
                                 padding: const EdgeInsets.all(12),
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    Text(
-                                      novost.naziv ?? "",
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 6),
-                                    Text(
-                                      novost.opisNovisti ?? "",
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(
-                                          color: Colors.white70),
-                                    ),
-                                    const SizedBox(height: 6),
-                                    Text(
-                                      "Datum: $datum",
-                                      style: const TextStyle(
-                                          color: Colors.white70,
-                                          fontSize: 12),
-                                    ),
-                                    const SizedBox(height: 6),
                                     Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
+                                        const Icon(Icons.campaign,
+                                            color: Colors.white, size: 18),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          novost.naziv ?? "",
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+
+                                    const SizedBox(height: 6),
+
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        const Icon(Icons.description,
+                                            color: Colors.white70, size: 18),
+                                        const SizedBox(width: 6),
+                                        Flexible(
+                                          child: Text(
+                                            novost.opisNovisti ?? "",
+                                            textAlign: TextAlign.center,
+                                            style: const TextStyle(
+                                                color: Colors.white70),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+
+                                    const SizedBox(height: 6),
+
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        const Icon(Icons.calendar_today,
+                                            color: Colors.white70, size: 18),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          datum,
+                                          style: const TextStyle(
+                                              color: Colors.white70,
+                                              fontSize: 12),
+                                        ),
+                                      ],
+                                    ),
+
+                                    const SizedBox(height: 6),
+
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        const Icon(Icons.check_circle_outline,
+                                            color: Colors.white70, size: 20),
+                                        const SizedBox(width: 6),
                                         const Text(
-                                          "Aktivna: ",
-                                          style: TextStyle(
-                                              color: Colors.white70),
+                                          "Aktivna:",
+                                          style:
+                                              TextStyle(color: Colors.white70),
                                         ),
                                         Checkbox(
                                           value: novost.aktivna == 1 ||

@@ -115,6 +115,9 @@ class KorisnikProvider extends BaseProvider<Korisnik> {
     required String prezime,
     required String korisnickoIme,
     required String email,
+    required String datumRodjenja,
+    required String telefon,
+    required String spol,
     required String lozinka,
   }) async {
     final url = Uri.parse('$totalUrl');
@@ -127,6 +130,9 @@ class KorisnikProvider extends BaseProvider<Korisnik> {
           "prezime": prezime,
           "korisnickoIme": korisnickoIme,
           "email": email,
+          "datumRodjenja": datumRodjenja,
+          "telefon": telefon,
+          "spol": spol,
           "lozinka": lozinka,
         }),
       );

@@ -42,6 +42,7 @@ class _OcjeneTimaScreen extends State<OcjeneTimaScreen> {
       'ocjena': widget.recenzije?.ocjena,
       'opisRecenzije': widget.recenzije?.opisRecenzije,
       'korisnikId': widget.recenzije?.korisnikId,
+      'datumRecenzije': widget.recenzije?.datumRecenzije ?? DateTime.now(),
     };
   }
 
@@ -156,6 +157,15 @@ class _OcjeneTimaScreen extends State<OcjeneTimaScreen> {
     }
   }
 
+  Korisnik? _findKorisnikById(int? id) {
+    if (id == null || _korisnik == null) return null;
+    try {
+      return _korisnik!.firstWhere((k) => k.korisnikId == id);
+    } catch (e) {
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MasterScreenWidget(
@@ -182,8 +192,7 @@ class _OcjeneTimaScreen extends State<OcjeneTimaScreen> {
                 SizedBox(
                   height: 8.0,
                 ),
-                Text(
-                    'Think good, ---'),
+                Text('Think good, ---'),
                 Offstage(
                   offstage: true,
                   child: FormBuilderTextField(
@@ -241,6 +250,23 @@ class _OcjeneTimaScreen extends State<OcjeneTimaScreen> {
                   },
                 ),
                 SizedBox(height: 16),
+                FormBuilderDateTimePicker(
+                  name: 'datumRecenzije',
+                  inputType: InputType.date,
+                  decoration: InputDecoration(
+                    labelText: 'Datum recenzije',
+                    border: OutlineInputBorder(),
+                  ),
+                  initialValue:
+                      widget.recenzije?.datumRecenzije ?? DateTime.now(),
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Datum je obavezan!';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 16),
                 SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: _submitForm,
@@ -259,27 +285,82 @@ class _OcjeneTimaScreen extends State<OcjeneTimaScreen> {
   }
 
   Widget _buildDataListView() {
-    final _verticalScrollController = ScrollController();
-    final _horizontalScrollController = ScrollController();
+    if (_recenzije == null || _recenzije!.isEmpty) {
+      return Text("Nema recenzija.", style: TextStyle(fontSize: 16));
+    }
 
-    return Card(
-      elevation: 5,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: DataTable(
-          columns: const <DataColumn>[
-            DataColumn(label: Text('Ocjene salona ')),
-            DataColumn(label: Text('Opis recenzije')),
-          ],
-          rows: _recenzije?.map((Recenzije e) {
-                return DataRow(cells: [
-                  DataCell(Text(e.ocjena.toString())),
-                  DataCell(Text(e.opisRecenzije.toString())),
-                ]);
-              }).toList() ??
-              [],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(height: 20),
+        Text(
+          "Recenzije korisnika",
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
         ),
-      ),
+        SizedBox(height: 10),
+        ListView.builder(
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
+          itemCount: _recenzije!.length,
+          itemBuilder: (context, index) {
+            final e = _recenzije![index];
+            final korisnik = _findKorisnikById(e.korisnikId);
+
+            return Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 3,
+              margin: EdgeInsets.symmetric(vertical: 8),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          korisnik?.ime ?? "Nepoznat korisnik",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        Text(
+                          e.datumRecenzije != null
+                              ? "${e.datumRecenzije!.day.toString().padLeft(2, '0')}.${e.datumRecenzije!.month.toString().padLeft(2, '0')}.${e.datumRecenzije!.year}"
+                              : "",
+                          style: TextStyle(color: Colors.grey[600]),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 8),
+                    Row(
+                      children: List.generate(5, (starIndex) {
+                        return Icon(
+                          starIndex < (e.ocjena ?? 0)
+                              ? Icons.star
+                              : Icons.star_border,
+                          color: Colors.amber,
+                          size: 22,
+                        );
+                      }),
+                    ),
+
+                    SizedBox(height: 12),
+
+                    Text(
+                      e.opisRecenzije ?? "",
+                      style: TextStyle(fontSize: 15),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ],
     );
   }
 }

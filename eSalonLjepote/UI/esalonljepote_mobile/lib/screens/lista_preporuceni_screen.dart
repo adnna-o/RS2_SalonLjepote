@@ -5,6 +5,7 @@ import 'package:esalonljepote_mobile/models/proizvod.dart';
 import 'package:esalonljepote_mobile/providers/ocjene_proizvoda_provider.dart';
 import 'package:esalonljepote_mobile/providers/proizvod_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class ListaPreporuceniProizvodi extends StatefulWidget {
   @override
@@ -57,7 +58,6 @@ class _ListaPreporuceniProizvodi extends State<ListaPreporuceniProizvodi> {
 
     return Column(
       children: [
-        // Opcionalno: Dropdown za filtriranje ocjena
         if (_proizvodi!.isNotEmpty)
           Padding(
             padding: const EdgeInsets.all(12.0),
@@ -83,8 +83,8 @@ class _ListaPreporuceniProizvodi extends State<ListaPreporuceniProizvodi> {
                     items: _groupProizvodByRating(_proizvodi!)
                         .map((group) => DropdownMenuItem<double>(
                               value: group.rating,
-                              child:
-                                  Text('Ocjena: ${group.rating.toStringAsFixed(1)}'),
+                              child: Text(
+                                  'Ocjena: ${group.rating.toStringAsFixed(1)}'),
                             ))
                         .toList(),
                     onChanged: (value) {
@@ -97,7 +97,6 @@ class _ListaPreporuceniProizvodi extends State<ListaPreporuceniProizvodi> {
               ),
             ),
           ),
-        // Grid lista proizvoda
         Expanded(
           child: GridView.builder(
             padding: const EdgeInsets.all(12),
@@ -129,7 +128,6 @@ class _ListaPreporuceniProizvodi extends State<ListaPreporuceniProizvodi> {
 
     Uint8List? imageBytes;
     if (proizvod.slika != null && proizvod.slika!.isNotEmpty) {
-      // Sigurno dekodiranje Base64
       final base64Str = proizvod.slika!.contains(',')
           ? proizvod.slika!.split(',').last
           : proizvod.slika!;
@@ -171,9 +169,9 @@ class _ListaPreporuceniProizvodi extends State<ListaPreporuceniProizvodi> {
                   ),
           ),
           Expanded(
-            flex: 4,
+            flex: 2,
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(6.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -187,20 +185,43 @@ class _ListaPreporuceniProizvodi extends State<ListaPreporuceniProizvodi> {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  Text(
-                    "${proizvod.cijena ?? 0} KM",
-                    style: const TextStyle(
-                      color: Color.fromARGB(255, 100, 57, 59),
-                      fontWeight: FontWeight.w500,
-                    ),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.sell_outlined,
+                        color: Color.fromARGB(255, 100, 57, 59),
+                        size: 18,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${proizvod.cijena != null ? NumberFormat("#,##0.00", "bs").format(proizvod.cijena) : '0,00'} KM',
+                        style: const TextStyle(
+                          color: Color.fromARGB(255, 100, 57, 59),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
                   if (ocjeneZaProizvod != null && ocjeneZaProizvod.isNotEmpty)
-                    Text(
-                      "Ocjena: ${proizvod.averageRating?.toStringAsFixed(1) ?? '0'} (${ocjeneZaProizvod.length} ocjena)",
-                      style: const TextStyle(
-                        color: Color.fromARGB(255, 134, 98, 100),
-                        fontSize: 13,
-                      ),
+                    Row(
+                      children: [
+                        Icon(Icons.star, color: Colors.amber, size: 18),
+                        Text(
+                          proizvod.averageRating?.toStringAsFixed(1) ?? "0.0",
+                          style: const TextStyle(
+                            color: Color.fromARGB(255, 134, 98, 100),
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          "• ${ocjeneZaProizvod.length} ocjena",
+                          style: const TextStyle(
+                            color: Color.fromARGB(255, 134, 98, 100),
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
                     ),
                 ],
               ),

@@ -42,6 +42,7 @@ class _TerminScreen extends State<TerminScreen> {
   TextEditingController _imeKlijentaController = TextEditingController();
   TextEditingController _prezimeKlijentaController = TextEditingController();
   TextEditingController _nazivUslugeController = TextEditingController();
+  TextEditingController _datumTerminaontroller = TextEditingController();
 
   bool searchExecuted = false;
   Timer? _debounce;
@@ -60,8 +61,17 @@ class _TerminScreen extends State<TerminScreen> {
   }
 
 //buduca funkcija
-  Future<void> _fetchTermini() async {
-    var terminData = await _terminProvider.get();
+  Future<void> _fetchTermini({String? filterDate}) async {
+    String dateFilter =
+        filterDate ?? DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+    var terminData = await _terminProvider.get(filter: {
+      'datumTermina': dateFilter,
+      'imeKlijenta': _imeKlijentaController.text.trim(),
+      'prezimeKlijenta': _prezimeKlijentaController.text.trim(),
+      'nazivUsluge': _nazivUslugeController.text.trim(),
+    });
+
     var klijentiData = await _klijentiProvider.get();
     var zaposleniData = await _zaposleniProvider.get();
     var korisnikData = await _korisnikProvider.get();
@@ -74,17 +84,23 @@ class _TerminScreen extends State<TerminScreen> {
       korisnikResult = korisnikData;
       uslugaResult = uslugaData;
     });
-    print(terminResult);
   }
 
   void _onSearchChanged() {
     if (_debounce?.isActive ?? false) _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () async {
-      var data = await _terminProvider.get(filter: {
+      Map<String, String> filter = {
         'imeKlijenta': _imeKlijentaController.text.trim(),
         'prezimeKlijenta': _prezimeKlijentaController.text.trim(),
         'nazivUsluge': _nazivUslugeController.text.trim(),
-      });
+      };
+
+      if (_datumTerminaontroller.text.isNotEmpty) {
+        filter['datumTermina'] = _datumTerminaontroller.text;
+      }
+
+      var data = await _terminProvider.get(filter: filter);
+
       setState(() {
         terminResult = data;
       });
@@ -92,11 +108,15 @@ class _TerminScreen extends State<TerminScreen> {
   }
 
   Future<void> _searchData() async {
-    var filter = {
+    Map<String, String> filter = {
       'imeKlijenta': _imeKlijentaController.text,
       'prezimeKlijenta': _prezimeKlijentaController.text,
       'nazivUsluge': _nazivUslugeController.text,
     };
+
+    if (_datumTerminaontroller.text.isNotEmpty) {
+      filter['datumTermina'] = _datumTerminaontroller.text;
+    }
 
     var data = await _terminProvider.get(filter: filter);
 
@@ -171,6 +191,45 @@ class _TerminScreen extends State<TerminScreen> {
                       ),
                     ),
                   ),
+                  Expanded(
+                    child: TextField(
+                      controller: _datumTerminaontroller,
+                      readOnly: true,
+                      onTap: () async {
+                        DateTime? picked = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime(2100),
+                        );
+                        if (picked != null) {
+                          _datumTerminaontroller.text =
+                              DateFormat('yyyy-MM-dd').format(picked);
+                          _onSearchChanged();
+                        }
+                      },
+                      decoration: InputDecoration(
+                        prefixIcon: Icon(Icons.calendar_today,
+                            color: Color.fromARGB(255, 173, 160, 117)),
+                        suffixIcon: _datumTerminaontroller.text.isNotEmpty
+                            ? IconButton(
+                                icon: Icon(Icons.clear),
+                                onPressed: () {
+                                  _datumTerminaontroller.clear();
+                                  _onSearchChanged(); // ponovno filtriraj bez datuma
+                                },
+                              )
+                            : null,
+                        labelText: "Datum termina",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                      ),
+                    ),
+                  ),
                   SizedBox(width: 12),
                   ElevatedButton(
                     onPressed: _searchData,
@@ -194,59 +253,59 @@ class _TerminScreen extends State<TerminScreen> {
     );
   }
 
- @override
-Widget build(BuildContext context) {
-  double maxWidth = 1000; // maksimalna širina za search i listu
-  return MasterScreenWidget(
-    child: Container(
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage("assets/images/homepage.png"),
-          fit: BoxFit.cover,
+  @override
+  Widget build(BuildContext context) {
+    double maxWidth = 1000; // maksimalna širina za search i listu
+    return MasterScreenWidget(
+      child: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/images/homepage.png"),
+            fit: BoxFit.cover,
+          ),
         ),
-      ),
-      child: Center( // centriramo sadržaj horizontalno
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: maxWidth),
-          child: Column(
-            children: [
-              _buildSearch(), // search bar
-              const SizedBox(height: 8.0),
-              Expanded(child: _buildDataListView()), // lista termina
-              const SizedBox(height: 8.0),
-              ElevatedButton(
-                onPressed: () async {
-                  final result = await Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => TerminDetailsScreen(
-                        onDataChanged: _fetchTermini,
+        child: Center(
+          // centriramo sadržaj horizontalno
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: maxWidth),
+            child: Column(
+              children: [
+                _buildSearch(), // search bar
+                const SizedBox(height: 8.0),
+                Expanded(child: _buildDataListView()), // lista termina
+                const SizedBox(height: 8.0),
+                ElevatedButton(
+                  onPressed: () async {
+                    final result = await Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => TerminDetailsScreen(
+                          onDataChanged: _fetchTermini,
+                        ),
                       ),
+                    );
+                    if (result != null) {
+                      _fetchTermini();
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color.fromARGB(255, 173, 160, 117),
+                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                  );
-                  if (result != null) {
-                    _fetchTermini();
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color.fromARGB(255, 173, 160, 117),
-                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    "Dodaj novi termin!",
+                    style: TextStyle(color: Colors.white),
                   ),
                 ),
-                child: Text(
-                  "Dodaj novi termin!",
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 
   void _refreshTermini() async {
     var terminData = await _terminProvider.get();
@@ -280,6 +339,8 @@ Widget build(BuildContext context) {
             DataColumn(label: Text('Usluga')),
             DataColumn(label: Text('Zaposleni')),
             DataColumn(label: Text('Klijent')),
+            DataColumn(label: Text('Telefon Klijenta')),
+            DataColumn(label: Text('Email Klijenta')),
             DataColumn(label: Text('Datum termina')),
             DataColumn(label: Text('Vrijeme termina')),
           ],
@@ -296,6 +357,10 @@ Widget build(BuildContext context) {
                 String imeKlijenta = korisnikKlijenta?.ime ?? "Nepoznato";
                 String prezimeKlijenta =
                     korisnikKlijenta?.prezime ?? "Nepoznato";
+                
+                String telefonKlijenta = korisnikKlijenta?.telefon ?? "Nepoznato";
+                String emailKlijenta = korisnikKlijenta?.email ?? "Nepoznato";
+
 
                 var zaposleni = zaposleniResult?.result
                     .firstWhere((p) => p.zaposleniId == e.zaposleniId);
@@ -315,6 +380,8 @@ Widget build(BuildContext context) {
                     DataCell(Text(nazivUsluge?.nazivUsluge ?? "")),
                     DataCell(Text("$imeZaposlenog $prezimeZaposlenog")),
                     DataCell(Text("$imeKlijenta $prezimeKlijenta")),
+                    DataCell(Text("$telefonKlijenta ")),
+                    DataCell(Text("$emailKlijenta")),
                     DataCell(
                         Text(DateFormat('dd.MM.yyyy').format(e.datumTermina!))),
                     DataCell(Text(e.vrijemeTermina.toString())),

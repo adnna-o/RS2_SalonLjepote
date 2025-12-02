@@ -8,6 +8,7 @@ import 'package:esalonljepote_desktop/widget/master_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart'; // <-- NOVO
 
 class ProizvodScreen extends StatefulWidget {
   ProizvodScreen({Key? key}) : super(key: key);
@@ -71,8 +72,7 @@ class _ProizvodScreenState extends State<ProizvodScreen> {
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(255, 173, 160, 117),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10)),
               ),
@@ -144,10 +144,12 @@ class _ProizvodScreenState extends State<ProizvodScreen> {
       );
     }
 
+    final NumberFormat priceFormatter = NumberFormat("#,##0.00", "bs");
+
     return GridView.builder(
       itemCount: proizvodi.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4, // broj kolona
+        crossAxisCount: 4,
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
         childAspectRatio: 0.8,
@@ -214,12 +216,14 @@ class _ProizvodScreenState extends State<ProizvodScreen> {
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 4),
+
                         Text(
-                          "${p.cijena?.toStringAsFixed(2) ?? '--'} KM",
+                          "${priceFormatter.format(p.cijena ?? 0)} KM",
                           style: const TextStyle(
-                              color: Color.fromARGB(255, 173, 160, 117),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14),
+                            color: Color.fromARGB(255, 173, 160, 117),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
                         ),
                       ],
                     ),

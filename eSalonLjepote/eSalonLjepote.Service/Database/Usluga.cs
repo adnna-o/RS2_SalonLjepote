@@ -12,6 +12,7 @@ public partial class Usluga
     public decimal? Cijena { get; set; }
 
     public string? Trajanje { get; set; }
+    public byte[]? Slika { get; set; }
 
     public virtual ICollection<Termini> Terminis { get; } = new List<Termini>();
 

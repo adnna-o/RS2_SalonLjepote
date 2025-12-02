@@ -16,12 +16,14 @@ class Recenzije {
     this.korisnikId,
     this.opisRecenzije,
     this.ocjena,
+    this.datumRecenzije,
   });
 
   int? recenzijeId;
   int? korisnikId;
   String? opisRecenzije;
   int? ocjena;
+  DateTime? datumRecenzije;
 
   factory Recenzije.fromJson(Map<String, dynamic> json) =>
       _$RecenzijeFromJson(json);

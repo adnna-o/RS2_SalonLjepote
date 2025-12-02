@@ -138,21 +138,7 @@ class _ZakaziTerminScreenState extends State<ZakaziTerminScreen> {
       initialDate: now,
       firstDate: now,
       lastDate: DateTime(now.year, now.month + 1, 0),
-      selectableDayPredicate: (day) {
-        if (_zauzetiTermini == null) return true;
-
-        final zauzetiDatumi = _zauzetiTermini!
-            .map((t) => DateTime(
-                  t.datumTermina!.year,
-                  t.datumTermina!.month,
-                  t.datumTermina!.day,
-                ))
-            .toSet();
-
-        return !zauzetiDatumi.contains(
-          DateTime(day.year, day.month, day.day),
-        );
-      },
+      selectableDayPredicate: (day) => true,
       builder: (context, child) => Theme(
         data: Theme.of(context).copyWith(
           colorScheme: ColorScheme.light(
@@ -167,6 +153,32 @@ class _ZakaziTerminScreenState extends State<ZakaziTerminScreen> {
 
     if (selected != null) setState(() => _selectedDate = selected);
   }
+
+  List<String> _dostupniSati(DateTime dan, int zaposleniId) {
+    // radno vrijeme 09:00–19:00
+    final sveOpcije = List.generate(10, (i) {
+      final sat = 9 + i;
+      return '${sat.toString().padLeft(2, '0')}:00';
+    });
+
+    final zauzeti = _zauzetiTermini
+            ?.where((t) =>
+                t.zaposleniId == zaposleniId &&
+                t.datumTermina?.day == dan.day &&
+                t.datumTermina?.month == dan.month &&
+                t.datumTermina?.year == dan.year)
+            .map((t) => _cleanTime(t.vrijemeTermina))
+            .toList() ??
+        [];
+
+    return sveOpcije.where((sat) => !zauzeti.contains(sat)).toList();
+  }
+
+  String _cleanTime(String? time) {
+  if (time == null) return "";
+  return time.length >= 5 ? time.substring(0, 5) : time;
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -282,15 +294,34 @@ class _ZakaziTerminScreenState extends State<ZakaziTerminScreen> {
                   ),
                   trailing: const Icon(Icons.schedule_rounded),
                   onTap: () async {
-                    final selectedTime = await showTimePicker(
-                      context: context,
-                      initialTime: TimeOfDay(hour: 10, minute: 0),
-                    );
-                    if (selectedTime != null) {
-                      _vrijemeController.text =
-                          '${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}';
-                      setState(() {});
+                    if (_selectedDate == null || _selectedZaposleni == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                            content: Text('Prvo odaberite datum i zaposlenog')),
+                      );
+                      return;
                     }
+
+                    final slobodni = _dostupniSati(
+                        _selectedDate!, _selectedZaposleni!.zaposleniId!);
+
+                    showModalBottomSheet(
+                      context: context,
+                      builder: (context) {
+                        return ListView(
+                          children: slobodni.map((sat) {
+                            return ListTile(
+                              title: Text(sat),
+                              onTap: () {
+                                _vrijemeController.text = sat;
+                                Navigator.pop(context);
+                                setState(() {});
+                              },
+                            );
+                          }).toList(),
+                        );
+                      },
+                    );
                   },
                 ),
               ),

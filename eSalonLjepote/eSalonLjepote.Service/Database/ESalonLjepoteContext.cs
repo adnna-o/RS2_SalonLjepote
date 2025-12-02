@@ -216,6 +216,8 @@ public partial class ESalonLjepoteContext : DbContext
 
             entity.Property(e => e.OpisRecenzije).HasMaxLength(255);
             entity.Property(e => e.Ocjena).HasMaxLength(255);
+            entity.Property(e => e.DatumRecenzije).HasColumnType("datetime");
+
 
             entity.HasOne(d => d.Korisnik).WithMany(p => p.Recenzijes)
                 .HasForeignKey(d => d.KorisnikId)

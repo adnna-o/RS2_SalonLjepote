@@ -15,5 +15,7 @@ namespace eSalonLjepote.Model.Models
         public decimal? Cijena { get; set; }
 
         public string? Trajanje { get; set; }
+        public byte[]? Slika { get; set; }
+
     }
 }

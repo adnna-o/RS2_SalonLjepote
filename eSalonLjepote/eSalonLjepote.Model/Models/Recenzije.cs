@@ -15,6 +15,7 @@ namespace eSalonLjepote.Model.Models
         public string OpisRecenzije { get; set; } = null!;
 
         public int? Ocjena { get; set; }
+        public DateTime? DatumRecenzije { get; set; }
 
         public virtual Korisnik Korisnik { get; set; } = null!;
 

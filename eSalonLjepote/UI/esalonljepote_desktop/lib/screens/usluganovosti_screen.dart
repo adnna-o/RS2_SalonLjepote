@@ -168,8 +168,8 @@ class _UslugaNovostiScreen extends State<UslugaNovostiScreen> {
               final result = await Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => UslugaDetailsScreen(
-                    usluga: e, 
-                    onUslugaUpdate: _fetchUsluga, 
+                    usluga: e,
+                    onUslugaUpdate: _fetchUsluga,
                   ),
                 ),
               );
@@ -213,11 +213,12 @@ class _UslugaNovostiScreen extends State<UslugaNovostiScreen> {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        '${e.cijena} KM',
+                        '${e?.cijena != null ? NumberFormat("#,##0.00", "bs").format(e?.cijena) : ''} KM',
                         style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w500),
+                          fontSize: 16,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                       const SizedBox(height: 5),
                       Text(
@@ -303,69 +304,75 @@ class _UslugaNovostiScreen extends State<UslugaNovostiScreen> {
           final e = novosti[index];
 
           return GestureDetector(
-            onTap: () async{
-              final result= await Navigator.of(context).push(MaterialPageRoute(builder: (context)=> NovostiDetailsScreen(
-                novosti: e,
-                onDataChanged: _fetchNovosti,
-              ),),);
-              if(result!= null) _fetchNovosti();
+            onTap: () async {
+              final result = await Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => NovostiDetailsScreen(
+                    novosti: e,
+                    onDataChanged: _fetchNovosti,
+                  ),
+                ),
+              );
+              if (result != null) _fetchNovosti();
             },
-          
-          child: Container(
-            margin: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15),
-              gradient: LinearGradient(
-                colors: [Colors.white, Colors.purple.shade50],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              boxShadow: [
-                BoxShadow(
-                    color: Colors.black12, blurRadius: 5, offset: Offset(2, 2))
-              ],
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.newspaper,
-                      size: 40, color: Color.fromARGB(255, 173, 160, 117)),
-                  const SizedBox(height: 10),
-                  Text(
-                    e.naziv ?? '',
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Color.fromARGB(255, 188, 131, 41)),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    e.opisNovisti ?? '',
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    "Datum: ${e.datumObjave != null ? DateFormat('dd.MM.yyyy').format(DateTime.parse(e.datumObjave.toString()!)) : 'Nepoznato'}",
-                    style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Checkbox(
-                        value: e.aktivna == 1,
-                        onChanged: null,
-                        activeColor: Colors.green,
-                        checkColor: Colors.white,
-                      ),
-                    ],
-                  ),
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                gradient: LinearGradient(
+                  colors: [Colors.white, Colors.purple.shade50],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 5,
+                      offset: Offset(2, 2))
                 ],
               ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.newspaper,
+                        size: 40, color: Color.fromARGB(255, 173, 160, 117)),
+                    const SizedBox(height: 10),
+                    Text(
+                      e.naziv ?? '',
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromARGB(255, 188, 131, 41)),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      e.opisNovisti ?? '',
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      "Datum: ${e.datumObjave != null ? DateFormat('dd.MM.yyyy').format(DateTime.parse(e.datumObjave.toString()!)) : 'Nepoznato'}",
+                      style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Checkbox(
+                          value: e.aktivna == 1,
+                          onChanged: null,
+                          activeColor: Colors.green,
+                          checkColor: Colors.white,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ),);
+          );
         },
       ),
     );

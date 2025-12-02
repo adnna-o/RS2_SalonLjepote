@@ -9,6 +9,7 @@ import 'package:esalonljepote_mobile/screens/preporuceni_proizvodi_screen.dart';
 import 'package:esalonljepote_mobile/utils/util.dart';
 import 'package:esalonljepote_mobile/widget/master_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class ProizvodScreen extends StatefulWidget {
@@ -132,7 +133,7 @@ class _ProizvodScreen extends State<ProizvodScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: Text(
-              "${e.cijena} KM",
+             '${e?.cijena != null ? NumberFormat("#,##0.00", "bs").format(e?.cijena) : ''} KM',
               style: TextStyle(color: Color.fromARGB(255, 100, 57, 59)),
             ),
           ),

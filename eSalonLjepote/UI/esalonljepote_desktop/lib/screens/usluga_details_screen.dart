@@ -11,6 +11,7 @@ import 'package:esalonljepote_desktop/screens/usluganovosti_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/search_result.dart';
 
@@ -32,6 +33,9 @@ class _UslugaDetailsScreenState extends State<UslugaDetailsScreen> {
   SearchResult<Usluga>? uslugaResult;
 
   bool _isLoading = true;
+   String? _base64Image;
+  bool _removeImage = false;
+    final ImagePicker _picker = ImagePicker();
 
   bool get _isEdit => widget.usluga != null;
 
@@ -165,6 +169,20 @@ class _UslugaDetailsScreenState extends State<UslugaDetailsScreen> {
     final trajanjeUsluge = (request['trajanje'] ?? '').toString().trim();
     request['trajanje'] = trajanjeUsluge;
 
+ if (_base64Image != null && _base64Image!.isNotEmpty) {
+      request['slika'] = _base64Image;
+      request.remove('removeImage');
+    } else if (_isEdit && _removeImage) {
+      request['slika'] = null;
+      request['removeImage'] = true;
+    } else if (_isEdit) {
+      request.remove('slika');
+      request.remove('removeImage');
+    } else {
+      request.remove('slika');
+      request.remove('removeImage');
+    }
+
     try {
       if (_isEdit) {
         await _uslugaProvider.update(widget.usluga!.uslugaId!, request);
@@ -187,8 +205,12 @@ class _UslugaDetailsScreenState extends State<UslugaDetailsScreen> {
         initialValue: {
           'uslugaId': widget.usluga?.uslugaId?.toString(),
           'nazivUsluge': widget.usluga?.nazivUsluge,
-          'cijena': widget.usluga?.cijena.toString(),
+          'cijena': widget.usluga?.cijena != null
+              ? NumberFormat("#,##0.00", "bs").format(widget.usluga!.cijena)
+              : null,
           'trajanje': widget.usluga?.trajanje,
+          'slika': widget.usluga?.slika,
+
         },
         child: Column(
           children: [
@@ -306,6 +328,95 @@ class _UslugaDetailsScreenState extends State<UslugaDetailsScreen> {
                 ],
               ),
             ),
+            Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: FormBuilderField<String?>(
+                    name: 'imageId',
+                    builder: (field) {
+                      final hasNewImage =
+                          _base64Image != null && _base64Image!.isNotEmpty;
+                      final hasExistingImage = !_removeImage &&
+                          widget.usluga?.slika != null &&
+                          widget.usluga!.slika!.isNotEmpty;
+
+                      Widget content;
+                      if (hasNewImage) {
+                        content = Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _imagePreview(_base64Image!),
+                            const SizedBox(height: 8),
+                            Wrap(
+                              spacing: 8,
+                              children: [
+                                OutlinedButton.icon(
+                                  onPressed: _pickImage,
+                                  icon: const Icon(Icons.edit),
+                                  label: const Text('Promijeni sliku'),
+                                ),
+                                OutlinedButton.icon(
+                                  onPressed: _clearNewImage,
+                                  icon: const Icon(Icons.delete_outline),
+                                  label: const Text('Ukloni'),
+                                ),
+                              ],
+                            ),
+                          ],
+                        );
+                      } else if (hasExistingImage) {
+                        content = Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _imagePreview(widget.usluga!.slika!),
+                            const SizedBox(height: 8),
+                            Wrap(
+                              spacing: 8,
+                              children: [
+                                OutlinedButton.icon(
+                                  onPressed: _pickImage,
+                                  icon: const Icon(Icons.edit),
+                                  label: const Text('Promijeni sliku'),
+                                ),
+                                OutlinedButton.icon(
+                                  onPressed: _markRemoveExistingImage,
+                                  icon: const Icon(Icons.delete_outline),
+                                  label: const Text('Ukloni'),
+                                ),
+                              ],
+                            ),
+                          ],
+                        );
+                      } else {
+                        content = ListTile(
+                          leading:
+                              const Icon(Icons.photo, color: Colors.orangeAccent),
+                          title: const Text("Odaberite sliku"),
+                          trailing: const Icon(Icons.file_upload,
+                              color: Colors.orangeAccent),
+                          onTap: _pickImage,
+                        );
+                      }
+
+                      return InputDecorator(
+                        decoration: InputDecoration(
+                          label: const Text('Slika (opcionalno)'),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide:
+                                const BorderSide(color: Colors.orangeAccent),
+                          ),
+                        ),
+                        child: content,
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
           ],
         ));
   }
@@ -335,5 +446,39 @@ class _UslugaDetailsScreenState extends State<UslugaDetailsScreen> {
       duration: const Duration(seconds: 3),
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+   Widget _imagePreview(String b64) {
+    return Container(
+      constraints:
+          const BoxConstraints(maxHeight: 200, maxWidth: double.infinity),
+      child: Image.memory(base64Decode(b64), fit: BoxFit.cover),
+    );
+  }
+
+  Future<void> _pickImage() async {
+    final XFile? picked = await _picker.pickImage(source: ImageSource.gallery);
+    if (picked != null) {
+      final bytes = await picked.readAsBytes();
+      setState(() {
+        _base64Image = base64Encode(bytes);
+        _removeImage = false;
+      });
+      _formKey.currentState?.fields['imageId']?.reset();
+    }
+  }
+
+  void _clearNewImage() {
+    setState(() {
+      _base64Image = null;
+    });
+  }
+
+  void _markRemoveExistingImage() {
+    setState(() {
+      _removeImage = true;
+      _base64Image = null;
+    });
+    _formKey.currentState?.fields['imageId']?.reset();
   }
 }
