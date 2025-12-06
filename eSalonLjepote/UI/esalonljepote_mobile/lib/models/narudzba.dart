@@ -22,6 +22,9 @@ class Narudzba {
       this.korisnik = const [],
       this.proizvod = const [],
       this.paymentId,
+      this.stateMachine,
+      this.statusNarudzbeId,
+
 
       });
 
@@ -33,6 +36,8 @@ class Narudzba {
   int? kolicinaProizvoda;
   double? iznosNarudzbe;
   String? paymentId;
+  String? stateMachine;
+  int? statusNarudzbeId;
 
   List<Korisnik> korisnik;
   List<Proizvod> proizvod;

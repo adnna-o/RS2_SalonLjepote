@@ -110,6 +110,8 @@ namespace eSaljonLjepote.Services.Mapping
             CreateMap<NarudzbaStavkeSearchObject, eSalonLjepote.Service.Database.NarudzbaStavka>();
             CreateMap<NarudzbaStavkaInsertRequest, eSalonLjepote.Service.Database.NarudzbaStavka>();
             CreateMap<NarudzbaStavkaUpdateRequest, eSalonLjepote.Service.Database.NarudzbaStavka>();
+
+            CreateMap<eSalonLjepote.Service.Database.Status, eSalonLjepote.Model.Models.Status>();
         }
     }
 }

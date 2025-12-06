@@ -24,6 +24,36 @@ namespace eSalonLjepote.API.Controllers
             return await _service.Get(search);
         }
 
+        /* [HttpPost("checkout")]
+         public async Task<ActionResult<int>> Checkout([FromBody] NarudzbaCheckoutRequest request)
+         {
+             var narudzba = await _service.Checkout(request);
+             return Ok(narudzba.NarudzbaId);
+
+         }
+
+         [HttpPost("checkoutFromCart")]
+         public async Task<ActionResult<int>> CheckoutFromCart([FromBody] CheckoutFromCartRequest req)
+         {
+             if (req == null || req.KorisnikId <= 0)
+                 return BadRequest("Neispravan zahtjev.");
+
+             try
+             {
+                 var id = await _service.CheckoutFromCart(req.KorisnikId, req.PaymentId, req.DatumNarudzbe);
+                 return Ok(id);
+             }
+             catch (InvalidOperationException ex)
+             {
+                 return BadRequest(ex.Message);
+             }
+             catch (Exception ex)
+             {
+                 return StatusCode(500, ex.Message);
+             }
+         }*/
+
+
         [HttpPost("checkout")]
         public async Task<ActionResult<int>> Checkout([FromBody] NarudzbaCheckoutRequest request)
         {
@@ -33,30 +63,33 @@ namespace eSalonLjepote.API.Controllers
         }
 
         [HttpPost("checkoutFromCart")]
+        //[HttpPost("checkout-from-cart")]
         public async Task<ActionResult<int>> CheckoutFromCart([FromBody] CheckoutFromCartRequest req)
         {
             if (req == null || req.KorisnikId <= 0)
                 return BadRequest("Neispravan zahtjev.");
 
-            try
-            {
-                var id = await _service.CheckoutFromCart(req.KorisnikId, req.PaymentId, req.DatumNarudzbe);
-                return Ok(id);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
+            var id = await _service.CheckoutFromCart(req.KorisnikId, req.StatusId, req.PaymentId, req.DatumNarudzbe);
+            return Ok(id);
         }
 
 
+        [HttpPut("{id}/activate")]
+        public virtual async Task<Model.Models.Narudzba> Activate(int id)
+        {
+            return await _service.Activate(id);
+        }
 
+        [HttpPut("{id}/hide")]
+        public virtual async Task<Model.Models.Narudzba> Hide(int id)
+        {
+            return await _service.Hide(id);
+        }
 
-
-
+        [HttpGet("{id}/allowedActions")]
+        public virtual async Task<List<string>> AllowedActions(int id)
+        {
+            return await _service.AllowedActions(id);
+        }
     }
 }

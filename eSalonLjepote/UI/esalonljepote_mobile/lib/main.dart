@@ -11,6 +11,7 @@ import 'package:esalonljepote_mobile/providers/placanje_provider.dart';
 import 'package:esalonljepote_mobile/providers/proizvod_provider.dart';
 import 'package:esalonljepote_mobile/providers/recenzije_provider.dart';
 import 'package:esalonljepote_mobile/providers/salonLjepote_provider.dart';
+import 'package:esalonljepote_mobile/providers/status_provider.dart';
 import 'package:esalonljepote_mobile/providers/termini_provider.dart';
 import 'package:esalonljepote_mobile/providers/uloga_provider.dart';
 import 'package:esalonljepote_mobile/providers/usluga_provider.dart';
@@ -43,6 +44,8 @@ void main() {
       ChangeNotifierProvider(create: (_) => GalerijaProvider()),
       ChangeNotifierProvider(create: (_) => NarudzbaStavkaProvider()),
       ChangeNotifierProvider(create: (_) => PlacanjeProvider()),
+      ChangeNotifierProvider(create: (_) => StatusProvider()),
+
 
 
     ],

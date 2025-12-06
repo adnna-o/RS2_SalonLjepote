@@ -50,6 +50,8 @@ public partial class ESalonLjepoteContext : DbContext
     public virtual DbSet<Korpa> Korpas { get; set; }
     public virtual DbSet<OcjeneProizvoda> OcjeneProizvodas { get; set; }
     public virtual DbSet<NarudzbaStavka> NarudzbaStavkas { get; set; }
+    public virtual DbSet<Status> Statuses { get; set; }
+
 
 
 
@@ -159,6 +161,9 @@ public partial class ESalonLjepoteContext : DbContext
                 .HasForeignKey(d => d.ProizvodId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Proizvod_Narudzba");
+            entity.HasOne(d => d.StatusNarudzbe).WithMany(p => p.Narudzbas)
+                .HasForeignKey(d => d.StatusNarudzbeId)
+                .HasConstraintName("FK_Narudzba_Status_");
         });
 
         modelBuilder.Entity<Novosti>(entity =>
@@ -311,6 +316,16 @@ public partial class ESalonLjepoteContext : DbContext
                 .HasForeignKey(d => d.KorisnikId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Korisnik_Zaposleni");
+        });
+
+
+        modelBuilder.Entity<Status>(entity =>
+        {
+            entity.HasKey(e => e.StatusNarudzbeId);
+
+            entity.ToTable("Status");
+
+            entity.Property(e => e.Naziv).HasMaxLength(50);
         });
 
         modelBuilder.Entity<Korpa>().HasKey(z => z.KorpaId);

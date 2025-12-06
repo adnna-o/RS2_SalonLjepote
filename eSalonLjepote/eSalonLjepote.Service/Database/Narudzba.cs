@@ -19,6 +19,9 @@ public partial class Narudzba
 
     public decimal? IznosNarudzbe { get; set; }
     public string? PaymentId { get; set; }
+    public string? StateMachine { get; set; }
+    public int? StatusNarudzbeId { get; set; }
+    public virtual Status? StatusNarudzbe { get; set; }
 
     public virtual Korisnik? Korisnik { get; set; } 
 

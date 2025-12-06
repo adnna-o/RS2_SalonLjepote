@@ -155,7 +155,7 @@ class _ProizvodScreen extends State<ProizvodScreen> {
                 try {
                   await context
                       .read<CartProvider>()
-                      .addToCart(Authorization.userId!, e.proizvodId!);
+                      .addToCart(Authorization.userId!, e.proizvodId!, e.cijena!);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text("${e.nazivProizvoda} je dodan u korpu!")),
                   );

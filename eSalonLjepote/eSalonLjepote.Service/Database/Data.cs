@@ -253,6 +253,8 @@ namespace eSaljonLjepote.Services.Database
                     KolicinaProizvoda = 2,
                     IznosNarudzbe =14,
                     KorisnikId = 1002,
+                    StatusNarudzbeId= 8578,
+                    StateMachine = "poslano",
                 },
                   new Narudzba()
                   {
@@ -263,6 +265,8 @@ namespace eSaljonLjepote.Services.Database
                       KolicinaProizvoda=2,
                       IznosNarudzbe=14,
                       KorisnikId = 1002,
+                      StatusNarudzbeId= 8578,
+                      StateMachine = "poslano",
                   },
                   new Narudzba()
                   {
@@ -273,6 +277,9 @@ namespace eSaljonLjepote.Services.Database
                       KorisnikId = 1002,
                       KolicinaProizvoda  =2,
                       IznosNarudzbe=14,
+                      StatusNarudzbeId = 8578,
+                      StateMachine = "poslano",
+
                   },
                   new Narudzba()
                   {
@@ -282,7 +289,10 @@ namespace eSaljonLjepote.Services.Database
                       DatumNarudzbe = new DateTime(2024,05,07),
                       KorisnikId = 1002,
                       KolicinaProizvoda = 2,
-                      IznosNarudzbe=14
+                      IznosNarudzbe=14,
+                      StatusNarudzbeId = 8578,
+                      StateMachine = "poslano",
+
                   });
             #endregion
 
@@ -744,6 +754,15 @@ namespace eSaljonLjepote.Services.Database
                 }
                 );
             #endregion
+
+            modelBuilder.Entity<Status>().HasData(
+               new Status()
+               {
+                   StatusNarudzbeId = 8578,
+                   Naziv = "poslano"
+               }
+               );
+
 
             //OnModelCreatingPartial(modelBuilder);
 

@@ -294,7 +294,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
   }
 }*/
 
- Future<int> checkoutFromCart(
+ /*Future<int> checkoutFromCart(
     int korisnikId,
     String? paypalPaymentId, {
     DateTime? datumNarudzbe,
@@ -323,7 +323,41 @@ abstract class BaseProvider<T> with ChangeNotifier {
       throw Exception(
           "Greška ${response.statusCode}: ${response.body}");
     }
+  }*/
+
+    Future<int> checkoutFromCart(
+  int userId,
+  String? paymentId, {
+  int? statusId,
+  DateTime? datumNarudzbe,
+}) async {
+  final uri = Uri.parse('${_baseUrl}Narudzba/checkoutFromCart');
+  final headers = createHeaders();
+
+  final bodyMap = <String, dynamic>{
+    "korisnikId": userId,
+    "paymentId": paymentId,
+    if (statusId != null) "statusId": statusId,
+    if (datumNarudzbe != null)
+      "datumNarudzbe": datumNarudzbe.toIso8601String(),
+  };
+
+  final resp = await http.post(
+    uri,
+    headers: headers,
+    body: jsonEncode(bodyMap),
+  );
+
+  debugPrint('checkoutFromCart ${resp.statusCode}: ${resp.body}');
+
+  if (resp.statusCode >= 200 && resp.statusCode < 300) {
+    final data = jsonDecode(resp.body);
+    return data is int ? data : int.parse(data.toString());
+  } else {
+    throw Exception('Checkout failed: ${resp.statusCode} ${resp.body}');
   }
+}
+
 
   Future<SearchResult<T>> getTermini() async {
   var result = await get();

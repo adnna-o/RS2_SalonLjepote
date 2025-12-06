@@ -23,11 +23,12 @@ class CartProvider extends BaseProvider<Korpa> {
 
   List<Korpa> get cartItems => _cartItems;
 
-  Future<Korpa> addToCart(int korisnikId, int proizvodId, {int kolicina = 1}) async {
+  Future<Korpa> addToCart(int korisnikId, int proizvodId,double cijena, {int kolicina = 1} ) async {
     final request = {
       "korisnikId": korisnikId,
       "proizvodId": proizvodId,
       "kolicina": kolicina,
+      "cijena":cijena,
     };
     return insert(request);
   }

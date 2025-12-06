@@ -22,6 +22,9 @@ namespace eSalonLjepote.Model.Models
 
         public decimal? IznosNarudzbe { get; set; }
         public string? PaymentId { get; set; }
+        public int StatusNarudzbeId { get; set; }
+        public string StatusNarudzbe { get; set; }
+        public string? StateMachine { get; set; }
 
         public virtual Korisnik Korisnik { get; set; } = null!;
 

@@ -2,6 +2,7 @@ using eSaljonLjepote.Services.Service;
 using eSalonLjepote.API;
 using eSalonLjepote.API.Filters;
 using eSalonLjepote.Service.Database;
+using eSalonLjepote.Service.NarudzbaStateMachine;
 using eSalonLjepote.Service.RabbitMQ;
 using eSalonLjepote.Service.Service;
 using Microsoft.AspNetCore.Authentication;
@@ -33,8 +34,15 @@ builder.Services.AddTransient<INarudzbaService, NarudzbaService>();
 builder.Services.AddTransient<IKorpaService, KorpaService>();
 builder.Services.AddTransient<IOcjeneProizvodaService, OcjeneProizvodaService>();
 builder.Services.AddTransient<INarudzbaStavka, NarudzbaStavkaService>();
+builder.Services.AddTransient<IStatusService, StatusService>();
+
 
 builder.Services.AddScoped<IMailProducer, MailProducer>();
+builder.Services.AddScoped<BaseNarudzbaState>();
+builder.Services.AddScoped<InitialNarudzbaState>();
+builder.Services.AddScoped<DraftNarudzbaState>();
+builder.Services.AddScoped<ActiveNarudzbaState>();
+
 
 // ========================================
 //  CONTROLLERS + JSON CONFIG

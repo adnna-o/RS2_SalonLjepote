@@ -7,6 +7,7 @@ import 'package:esalonljepote_mobile/models/search_result.dart';
 import 'package:esalonljepote_mobile/providers/cart_provider.dart';
 import 'package:esalonljepote_mobile/providers/placanje_provider.dart';
 import 'package:esalonljepote_mobile/providers/proizvod_provider.dart';
+import 'package:esalonljepote_mobile/screens/historija_narudzbi_screen.dart';
 import 'package:esalonljepote_mobile/screens/preporuceni_proizvodi_screen.dart';
 import 'package:esalonljepote_mobile/screens/proizvod_screen.dart';
 import 'package:esalonljepote_mobile/utils/util.dart';
@@ -135,8 +136,8 @@ class _CartScreenState extends State<CartScreen> {
     if (_korpa == null) return 0;
     double sum = 0;
     for (final item in _korpa!.result) {
-      final qty = item.kolicina ?? 0;
-      final price = item.proizvod?.cijena ?? 0;
+      final qty = (item.kolicina ?? 0);
+      final price = (item.cijena ?? 0);
       sum += price * qty;
     }
     return sum;
@@ -144,6 +145,80 @@ class _CartScreenState extends State<CartScreen> {
 
   String _to2(double v) => v.toStringAsFixed(2);
   String _bamToEurStr(double bam) => _to2(bam * EUR_PER_BAM);
+
+  /* Future<bool> _guardDateSelected() async {
+    if (_selectedDate != null) return true;
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Nedostaje datum'),
+        content: const Text('Molimo odaberite datum isporuke prije plaćanja.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('U redu'),
+          ),
+        ],
+      ),
+    );
+    return false;
+  }*/
+  int _eurCentsFromBAM(double bam) => ((bam * EUR_PER_BAM) * 100).round();
+  String _eurStrFromCents(int cents) => _to2(cents / 100.0);
+
+  List<Map<String, dynamic>> _buildPaypalTransactions() {
+    final subtotalBAM = _calcSubtotalBAM();
+    if (subtotalBAM <= 0) {
+      throw Exception('Korpa je prazna ili iznosi nisu postavljeni.');
+    }
+
+    int subtotalEurCents = 0;
+
+    final items = _korpa!.result.map((item) {
+      final proizvod = _proizvodProvider.items
+          .firstWhere((x) => x.proizvodId == item.proizvodId);
+      final int qty = (item.kolicina ?? 0);
+      final double unitBAM = (item.cijena ?? 0);
+
+      final unitEurCents = _eurCentsFromBAM(unitBAM);
+      subtotalEurCents += unitEurCents * qty;
+
+      return {
+        "name": proizvod.nazivProizvoda ?? "Nepoznato proizvod",
+        "quantity": qty,
+        "price": _eurStrFromCents(unitEurCents),
+        "currency": PAYPAL_CURRENCY
+      };
+    }).toList();
+
+    final int shippingEurCents = 0;
+    final int discountCents = 0;
+
+    final int totalEurCents =
+        subtotalEurCents + shippingEurCents - discountCents;
+
+    final subtotalStr = _eurStrFromCents(subtotalEurCents);
+    final shippingStr = _eurStrFromCents(shippingEurCents);
+    final totalStr = _eurStrFromCents(totalEurCents);
+
+    return [
+      {
+        "amount": {
+          "total": totalStr,
+          "currency": PAYPAL_CURRENCY,
+          "details": {
+            "subtotal": subtotalStr,
+            "shipping": shippingStr,
+            "shipping_discount": 0
+          }
+        },
+        "description": "Plaćanje narudžbe u eRestoran aplikaciji",
+        "item_list": {
+          "items": items,
+        }
+      }
+    ];
+  }
 
   Future<bool> _guardDateSelected() async {
     if (_selectedDate != null) return true;
@@ -163,31 +238,6 @@ class _CartScreenState extends State<CartScreen> {
     return false;
   }
 
-  Future<void> _startCashCheckout() async {
-    if (_korpa == null || _korpa!.result.isEmpty) {
-      _toast('Korpa je prazna.');
-      return;
-    }
-    if (!await _guardDateSelected()) return;
-
-    try {
-      final id = await _cartProvider.checkoutFromCart(
-        Authorization.userId!,
-        null,
-        datumNarudzbe: _selectedDate,
-        placanjeId: _selectedPlacanjeId,
-      );
-      if (!mounted) return;
-      _toast('Narudžba #$id kreirana (gotovina).');
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => ProizvodScreen()),
-      );
-    } catch (e) {
-      _toast('Greška pri kreiranju narudžbe: $e');
-    }
-  }
-
   Future<void> _startPaypalCheckout() async {
     if (_korpa == null || _korpa!.result.isEmpty) {
       _toast('Korpa je prazna.');
@@ -201,65 +251,94 @@ class _CartScreenState extends State<CartScreen> {
       return;
     }
 
-    final transactions = _korpa!.result.map((item) {
-      final proizvod = item.proizvod!;
-      final qty = item.kolicina ?? 0;
-      final priceEUR = _to2((proizvod.cijena ?? 0) * EUR_PER_BAM);
-      return {
-        "name": proizvod.nazivProizvoda ?? "Nepoznat proizvod",
-        "quantity": qty,
-        "price": priceEUR,
-        "currency": PAYPAL_CURRENCY,
-      };
-    }).toList();
+    late final List<Map<String, dynamic>> transactions;
+    try {
+      transactions = _buildPaypalTransactions();
+    } catch (e) {
+      _toast(e.toString());
+      return;
+    }
 
     Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => PaypalCheckoutView(
+      builder: (BuildContext context) => PaypalCheckoutView(
         sandboxMode: PAYPAL_SANDBOX,
         clientId: PAYPAL_CLIENT_ID,
         secretKey: PAYPAL_SECRET_KEY,
-        transactions: [
-          {
-            "amount": {
-              "total": _to2(subtotalBAM * EUR_PER_BAM),
-              "currency": PAYPAL_CURRENCY,
-              "details": {"subtotal": _to2(subtotalBAM * EUR_PER_BAM)}
-            },
-            "description": "Plaćanje narudžbe",
-            "item_list": {"items": transactions}
-          }
-        ],
+        transactions: transactions,
         note: "Hvala što koristite našu aplikaciju!",
-        onSuccess: (params) async {
-          final paymentId = params['data']?['id']?.toString() ?? '';
+        onSuccess: (Map params) async {
+          final paymentId =
+              (params['data']?['id'] ?? params['id'] ?? params['paymentId'])
+                  ?.toString();
 
-          try {
-            final orderId = await _cartProvider.checkoutFromCart(
-              Authorization.userId!,
-              paymentId,
-              datumNarudzbe: _selectedDate,
-              placanjeId: _selectedPlacanjeId,
-            );
+          final id = await _cartProvider.checkoutFromCart(
+            Authorization.userId!,
+            paymentId,
+            datumNarudzbe: _selectedDate,
+          );
 
-            if (!mounted) return;
-
-            _toast('Plaćeno! Narudžba #$orderId kreirana.');
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (_) => ProizvodScreen()),
-            );
-          } catch (e) {
-            _toast('Greška pri kreiranju narudžbe: $e');
-          }
+          if (!mounted) return;
+          _toast('Narudžba #$id kreirana!');
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => OrdersScreen()),
+          );
         },
         onError: (error) {
+          debugPrint("PayPal onError: $error");
           _toast('Greška u plaćanju: $error');
+          if (mounted) Navigator.pop(context);
         },
         onCancel: () {
+          debugPrint('PayPal cancelled');
           _toast('Plaćanje otkazano');
+          if (mounted) Navigator.pop(context);
         },
       ),
     ));
+  }
+
+  Future<void> _startCashCheckout() async {
+    if (_korpa == null || _korpa!.result.isEmpty) {
+      _toast('Korpa je prazna.');
+      return;
+    }
+    if (!await _guardDateSelected()) return;
+
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Plaćanje gotovinom'),
+        content:
+            const Text('Želite li potvrditi narudžbu sa plaćanjem gotovinom?'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Odustani')),
+          ElevatedButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Potvrdi')),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    try {
+      final id = await _cartProvider.checkoutFromCart(
+        Authorization.userId!,
+        null,
+        datumNarudzbe: _selectedDate,
+      );
+      if (!mounted) return;
+      _toast('Narudžba #$id kreirana (gotovina).');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => OrdersScreen()),
+      );
+    } catch (e) {
+      _toast('Greška pri kreiranju narudžbe: $e');
+    }
   }
 
   @override

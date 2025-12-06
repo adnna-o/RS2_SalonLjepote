@@ -15,6 +15,7 @@ namespace eSalonLjepote.Model.Request
         public DateTime? DatumNarudzbe { get; set; }
         public string? Napomena { get; set; }
         public string? PaymentId { get; set; }
+        public int? StatusNarudzbeId { get; set; }
 
         public List<NarudzbaCheckoutStavkaRequest> Stavke { get; set; } = new();
     }

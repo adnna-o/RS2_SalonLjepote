@@ -19,5 +19,8 @@ namespace eSalonLjepote.Model.Request
         public int KolicinaProizvoda { get; set; }
 
         public decimal? IznosNarudzbe { get; set; }
+        public int? StatusNarudzbeId { get; set; }
+        public string StatusNarudzbe { get; set; }
+        public string? StateMachine { get; set; }
     }
 }

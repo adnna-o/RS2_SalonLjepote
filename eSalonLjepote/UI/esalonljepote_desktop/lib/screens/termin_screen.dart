@@ -47,7 +47,6 @@ class _TerminScreen extends State<TerminScreen> {
   bool searchExecuted = false;
   Timer? _debounce;
 
-//Inicijalizacija providera
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -60,7 +59,6 @@ class _TerminScreen extends State<TerminScreen> {
     _fetchTermini();
   }
 
-//buduca funkcija
   Future<void> _fetchTermini({String? filterDate}) async {
     String dateFilter =
         filterDate ?? DateFormat('yyyy-MM-dd').format(DateTime.now());
@@ -216,7 +214,7 @@ class _TerminScreen extends State<TerminScreen> {
                                 icon: Icon(Icons.clear),
                                 onPressed: () {
                                   _datumTerminaontroller.clear();
-                                  _onSearchChanged(); // ponovno filtriraj bez datuma
+                                  _onSearchChanged(); 
                                 },
                               )
                             : null,
@@ -255,7 +253,7 @@ class _TerminScreen extends State<TerminScreen> {
 
   @override
   Widget build(BuildContext context) {
-    double maxWidth = 1000; // maksimalna širina za search i listu
+    double maxWidth = 1000; 
     return MasterScreenWidget(
       child: Container(
         decoration: BoxDecoration(
@@ -265,14 +263,13 @@ class _TerminScreen extends State<TerminScreen> {
           ),
         ),
         child: Center(
-          // centriramo sadržaj horizontalno
           child: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: maxWidth),
             child: Column(
               children: [
-                _buildSearch(), // search bar
+                _buildSearch(), 
                 const SizedBox(height: 8.0),
-                Expanded(child: _buildDataListView()), // lista termina
+                Expanded(child: _buildDataListView()), 
                 const SizedBox(height: 8.0),
                 ElevatedButton(
                   onPressed: () async {
@@ -316,6 +313,40 @@ class _TerminScreen extends State<TerminScreen> {
   }
 
   Widget _buildDataListView() {
+    if (terminResult == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (terminResult!.result.isEmpty) {
+      return Card(
+        elevation: 4,
+        margin: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [
+              Icon(Icons.info_outline, size: 48, color: Colors.grey),
+              SizedBox(height: 16),
+              Text(
+                "Za današnji dan nema rezervacija.",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 8),
+              Text(
+                "Možete dodati novu rezervaciju ili provjeriti stare rezervacije.",
+                style: TextStyle(fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -324,12 +355,12 @@ class _TerminScreen extends State<TerminScreen> {
         scrollDirection: Axis.horizontal,
         child: DataTable(
           headingRowColor: MaterialStateProperty.all(
-              Color.fromARGB(255, 173, 160, 117)), // boja headera
+              Color.fromARGB(255, 173, 160, 117)), 
           dataRowColor: MaterialStateProperty.resolveWith<Color?>(
             (Set<MaterialState> states) {
               if (states.contains(MaterialState.hovered))
                 return Color.fromARGB(255, 173, 160, 117);
-              return null; // default
+              return null; 
             },
           ),
           headingTextStyle: TextStyle(
@@ -344,7 +375,7 @@ class _TerminScreen extends State<TerminScreen> {
             DataColumn(label: Text('Datum termina')),
             DataColumn(label: Text('Vrijeme termina')),
           ],
-          rows: terminResult?.result.map((e) {
+          rows: terminResult!.result.map((e) {
                 var klijent = klijentiResult?.result
                     .firstWhere((k) => k.klijentId == e.klijentId);
 
@@ -361,17 +392,16 @@ class _TerminScreen extends State<TerminScreen> {
                 String telefonKlijenta = korisnikKlijenta?.telefon ?? "Nepoznato";
                 String emailKlijenta = korisnikKlijenta?.email ?? "Nepoznato";
 
-
                 var zaposleni = zaposleniResult?.result
                     .firstWhere((p) => p.zaposleniId == e.zaposleniId);
                 var korisnik = zaposleni != null
                     ? korisnikResult?.result
                         .firstWhere((k) => k.korisnikId == zaposleni.korisnikId)
                     : null;
-                var imeZaposlenog =
-                    korisnik != null ? korisnik.ime : "Nepoznato";
-                var prezimeZaposlenog =
-                    korisnik != null ? korisnik.prezime : "Nepoznato";
+
+                var imeZaposlenog = korisnik?.ime ?? "Nepoznato";
+                var prezimeZaposlenog = korisnik?.prezime ?? "Nepoznato";
+
                 var nazivUsluge = uslugaResult?.result
                     .firstWhere((p) => p.uslugaId == e.uslugaId);
 
@@ -380,15 +410,15 @@ class _TerminScreen extends State<TerminScreen> {
                     DataCell(Text(nazivUsluge?.nazivUsluge ?? "")),
                     DataCell(Text("$imeZaposlenog $prezimeZaposlenog")),
                     DataCell(Text("$imeKlijenta $prezimeKlijenta")),
-                    DataCell(Text("$telefonKlijenta ")),
+                    DataCell(Text("$telefonKlijenta")),
                     DataCell(Text("$emailKlijenta")),
                     DataCell(
-                        Text(DateFormat('dd.MM.yyyy').format(e.datumTermina!))),
+                      Text(DateFormat('dd.MM.yyyy').format(e.datumTermina!))
+                    ),
                     DataCell(Text(e.vrijemeTermina.toString())),
                   ],
                 );
-              }).toList() ??
-              [],
+              }).toList(),
         ),
       ),
     );
