@@ -20,6 +20,9 @@ class Narudzba {
       this.datumNarudzbe,
       this.kolicinaProizvoda,
       this.iznosNarudzbe,
+      this.statusNarudzbeId,
+      this.stateMachine,
+      this.paymentId,
       this.korisnik = const [],
       this.proizvod = const [],
 
@@ -32,6 +35,9 @@ class Narudzba {
   DateTime? datumNarudzbe;
   int? kolicinaProizvoda;
   double? iznosNarudzbe;
+  int? statusNarudzbeId;
+  String? stateMachine;
+  String? paymentId;
 
   List<Korisnik> korisnik;
   List<Proizvod> proizvod;

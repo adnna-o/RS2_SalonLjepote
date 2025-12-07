@@ -334,7 +334,7 @@ public partial class ESalonLjepoteContext : DbContext
             entity.ToTable("Korpa");
 
 
-            entity.Property(e => e.Kolicina).HasMaxLength(20);
+            entity.Property(e => e.KolicinaProizvoda).HasMaxLength(20);
             entity.Property(e => e.Cijena).HasMaxLength(20);
 
         });

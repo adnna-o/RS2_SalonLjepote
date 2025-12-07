@@ -16,7 +16,7 @@ namespace eSalonLjepote.Model.Request
 
         public DateTime DatumNarudzbe { get; set; }
 
-        public int KolicinaProizvoda { get; set; }
+        public int Kolicina { get; set; }
 
         public decimal? IznosNarudzbe { get; set; }
         public int? StatusNarudzbeId { get; set; }

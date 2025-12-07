@@ -30,6 +30,7 @@ namespace eSalonLjepote.Service.Service
             entity.StatusNarudzbeId = insert.StatusNarudzbeId;
             entity.DatumNarudzbe = insert.DatumNarudzbe;
             entity.StateMachine = insert.StateMachine;
+            entity.ProizvodId = insert.ProizvodId;
 
             base.BeforeInsert(insert, entity);
 
@@ -172,6 +173,7 @@ namespace eSalonLjepote.Service.Service
             entity.DatumNarudzbe ??= DateTime.Now;
             entity.StateMachine ??= "initial";
             entity.StatusNarudzbeId = statusId;
+            entity.ProizvodId = insert.ProizvodId;
 
             _context.Narudzbas.Add(entity);
             _context.SaveChanges();
@@ -198,7 +200,8 @@ namespace eSalonLjepote.Service.Service
                         DatumNarudzbe = req.DatumNarudzbe ?? DateTime.Now,
                         KorisnikId = req.KorisnikId,
                         StatusNarudzbeId = req.StatusNarudzbeId ?? 1,
-                        StateMachine = "Kreirana"
+                        StateMachine = "Kreirana",
+                        ProizvodId=req.Stavke.First().ProizvodId,
                     };
 
                     _context.Narudzbas.Add(nar);
@@ -220,7 +223,7 @@ namespace eSalonLjepote.Service.Service
                         {
                             NarudzbaId = nar.NarudzbaId,
                             ProizvodId = s.ProizvodId,
-                            Kolicina = s.Kolicina,
+                            KolicinaProizvoda = s.KolicinaProizvoda,
                             Cijena = cijenaInt
                         });
                     }
@@ -279,6 +282,7 @@ namespace eSalonLjepote.Service.Service
                         DatumNarudzbe = datumNarudzbe ?? DateTime.Now,
                         StatusNarudzbeId = status.StatusNarudzbeId,
                         StateMachine = "Kreirana",
+                        ProizvodId=stavkeKorpe.First().ProizvodId,
                         Stavke = stavkeKorpe.Select(k =>
                         {
                             var proizvodCijena = _context.Proizvods
@@ -291,7 +295,7 @@ namespace eSalonLjepote.Service.Service
                             return new NarudzbaStavka
                             {
                                 ProizvodId = k.ProizvodId,
-                                Kolicina = k.Kolicina ?? 1,
+                                KolicinaProizvoda = k.KolicinaProizvoda ?? 1,
                                 Cijena = cijenaInt
                             };
                         }).ToList(),

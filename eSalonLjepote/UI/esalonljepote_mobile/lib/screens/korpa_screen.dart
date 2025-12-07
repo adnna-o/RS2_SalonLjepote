@@ -70,6 +70,7 @@ class _CartScreenState extends State<CartScreen> {
               Proizvod(nazivProizvoda: "Nepoznat proizvod", cijena: 0),
         );
       }
+      await _fetchInitialData();
 
       setState(() {
         _korpa = data;
@@ -80,6 +81,31 @@ class _CartScreenState extends State<CartScreen> {
       debugPrint("Error loading data: $e");
       setState(() => _isLoading = false);
       _toast('Greška pri učitavanju podataka.');
+    }
+  }
+
+  /*  Future<void> _loadData() async {
+    try {
+      await _proizvodProvider.fetchAll();
+      await _fetchInitialData();
+    } catch (e) {
+      debugPrint("Error loading data: $e");
+      setState(() => _isLoading = false);
+      _toast('Greška pri učitavanju podataka.');
+    }
+  }*/
+
+  Future<void> _fetchInitialData() async {
+    try {
+      final data = await _cartProvider.get();
+      setState(() {
+        _korpa = data;
+        _isLoading = false;
+      });
+    } catch (e) {
+      debugPrint('Error fetching cart data: $e');
+      setState(() => _isLoading = false);
+      _toast('Greška pri dohvatu korpe.');
     }
   }
 
@@ -136,7 +162,7 @@ class _CartScreenState extends State<CartScreen> {
     if (_korpa == null) return 0;
     double sum = 0;
     for (final item in _korpa!.result) {
-      final qty = (item.kolicina ?? 0);
+      final qty = (item.kolicinaProizvoda ?? 0);
       final price = (item.cijena ?? 0);
       sum += price * qty;
     }
@@ -177,7 +203,7 @@ class _CartScreenState extends State<CartScreen> {
     final items = _korpa!.result.map((item) {
       final proizvod = _proizvodProvider.items
           .firstWhere((x) => x.proizvodId == item.proizvodId);
-      final int qty = (item.kolicina ?? 0);
+      final int qty = (item.kolicinaProizvoda ?? 0);
       final double unitBAM = (item.cijena ?? 0);
 
       final unitEurCents = _eurCentsFromBAM(unitBAM);
@@ -330,6 +356,7 @@ class _CartScreenState extends State<CartScreen> {
         null,
         datumNarudzbe: _selectedDate,
       );
+    
       if (!mounted) return;
       _toast('Narudžba #$id kreirana (gotovina).');
       Navigator.pushReplacement(
@@ -491,7 +518,7 @@ class _CartScreenState extends State<CartScreen> {
                           itemBuilder: (context, index) {
                             final item = _korpa!.result[index];
                             final proizvod = item.proizvod!;
-                            final qty = item.kolicina ?? 0;
+                            final qty = item.kolicinaProizvoda ?? 0;
                             final lineTotal = (proizvod.cijena ?? 0) * qty;
 
                             return _CartLine(

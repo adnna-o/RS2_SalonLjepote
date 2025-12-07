@@ -11,7 +11,7 @@ namespace eSalonLjepote.Model.Models
         public int KorpaId { get; set; }
         public int? ProizvodId { get; set; }
         public int? KorisnikId { get; set; }
-        public int? Kolicina { get; set; }
+        public int? KolicinaProizvoda { get; set; }
         public decimal? Cijena { get; set; }
     }
 }

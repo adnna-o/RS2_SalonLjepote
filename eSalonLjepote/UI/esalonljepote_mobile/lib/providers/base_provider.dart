@@ -340,6 +340,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
     if (statusId != null) "statusId": statusId,
     if (datumNarudzbe != null)
       "datumNarudzbe": datumNarudzbe.toIso8601String(),
+
   };
 
   final resp = await http.post(

@@ -10,11 +10,11 @@ class Korpa {
   int? korpaId;
   int? korisnikId;
   int? proizvodId;
-  int? kolicina;
+  int? kolicinaProizvoda;
   double? cijena;
   Proizvod? proizvod;
 
-  Korpa(this.korpaId, this.korisnikId, this.proizvodId, this.kolicina,
+  Korpa(this.korpaId, this.korisnikId, this.proizvodId, this.kolicinaProizvoda,
       this.cijena,this.proizvod, );
 
   factory Korpa.fromJson(Map<String, dynamic> json) => _$KorpaFromJson(json);

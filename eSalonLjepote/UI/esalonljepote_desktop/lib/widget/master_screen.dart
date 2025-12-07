@@ -6,6 +6,7 @@ import 'package:esalonljepote_desktop/screens/klijent_screen.dart';
 import 'package:esalonljepote_desktop/screens/narudzba_screen.dart';
 import 'package:esalonljepote_desktop/screens/proizvod_screen.dart';
 import 'package:esalonljepote_desktop/screens/report_screen.dart';
+import 'package:esalonljepote_desktop/screens/status_narudzbe_screen.dart';
 import 'package:esalonljepote_desktop/screens/termin_screen.dart';
 import 'package:esalonljepote_desktop/screens/usluganovosti_screen.dart';
 import 'package:esalonljepote_desktop/screens/zaposleni_screen.dart';
@@ -154,6 +155,8 @@ class _MasterScreenWidgetState extends State<MasterScreenWidget> {
             "Klijenti"),
         _buildNavIcon(context, Icons.people, ZaposleniScreen(), "Zaposleni"),
         _buildNavIcon(context, Icons.history, ReportScreen(), "Historija"),
+        //_buildNavIcon(context, Icons.history, StatusNarudzbaScreen(), "Evidencija statusa"),
+
         SizedBox(height: 24),
         ElevatedButton(
           onPressed: _logout,

@@ -41,7 +41,7 @@ namespace eSalonLjepote.API.Controllers
                     KorisnikId = request.KorisnikId,
                     DatumNarudzbe = request.DatumNarudzbe ?? DateTime.Now,
                     PlacanjeId = request.PlacanjeId ?? 1, // default gotovina
-                    IznosNarudzbe = korpaStavke.Sum(s => (s.Proizvod?.Cijena ?? 0) * (s.Kolicina ?? 0))
+                    IznosNarudzbe = korpaStavke.Sum(s => (s.Proizvod?.Cijena ?? 0) * (s.KolicinaProizvoda ?? 0))
                 };
 
                 _context.Narudzbas.Add(narudzba);
@@ -54,7 +54,7 @@ namespace eSalonLjepote.API.Controllers
                     {
                         NarudzbaId = narudzba.NarudzbaId,
                         ProizvodId = item.ProizvodId,
-                        Kolicina = item.Kolicina ?? 1,
+                        KolicinaProizvoda = item.KolicinaProizvoda ?? 1,
                         Cijena = item.Proizvod?.Cijena ?? 0
                     };
                     _context.NarudzbaStavkas.Add(stavka);

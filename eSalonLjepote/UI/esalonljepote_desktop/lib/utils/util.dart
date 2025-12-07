@@ -7,3 +7,12 @@ class Authorization {
   static Korisnik? korisnik;
   static Uloga? uloga;
 }
+
+extension IterableExtensions<E> on Iterable<E> {
+  E? firstOrNull(bool Function(E element) test) {
+    for (var e in this) {
+      if (test(e)) return e;
+    }
+    return null;
+  }
+}

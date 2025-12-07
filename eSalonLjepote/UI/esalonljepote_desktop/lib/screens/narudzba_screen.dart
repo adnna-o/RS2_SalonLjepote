@@ -17,6 +17,7 @@ import 'package:esalonljepote_desktop/providers/termini_provider.dart';
 import 'package:esalonljepote_desktop/providers/usluga_provider.dart';
 import 'package:esalonljepote_desktop/providers/zaposleni_provider.dart';
 import 'package:esalonljepote_desktop/screens/narudzba_details_screen.dart';
+import 'package:esalonljepote_desktop/screens/status_narudzbe_screen.dart';
 import 'package:esalonljepote_desktop/screens/termin_details_screen.dart';
 import 'package:esalonljepote_desktop/widget/master_screen.dart';
 import 'package:flutter/material.dart';
@@ -319,26 +320,47 @@ class _NarudzbaScreen extends State<NarudzbaScreen> {
               DataColumn(label: Text('Datum narudžbe')),
               DataColumn(label: Text('Količina')),
               DataColumn(label: Text('Iznos')),
+              DataColumn(label: Text('Akcije')), // nova kolona
             ],
-            rows: narudzbaResult?.result.map((Narudzba e) {
-                  var korisnikIme = korisnikResult?.result
-                      .firstWhere((p) => p.korisnikId == e.korisnikId);
-                  var proizvodNaziv = proizvodResult?.result
-                      .firstWhere((p) => p.proizvodId == e.proizvodId);
-                  var nacinPlacanjaNaziv = placanjeResult?.result
-                      .firstWhere((p) => p.placanjeId == e.placanjeId);
+            rows: (narudzbaResult?.result ?? []).map((Narudzba e) {
+              // Dummy objekti u slučaju da nije pronađen
+              var korisnikIme = korisnikResult?.result.firstWhere(
+                (p) => p.korisnikId == e.korisnikId,
+                orElse: () => Korisnik(korisnikId: 0, ime: '', prezime: ''),
+              );
+              var proizvodNaziv = proizvodResult?.result.firstWhere(
+                (p) => p.proizvodId == e.proizvodId,
+                orElse: () => Proizvod(proizvodId: 0, nazivProizvoda: ''),
+              );
+              var nacinPlacanjaNaziv = placanjeResult?.result.firstWhere(
+                (p) => p.placanjeId == e.placanjeId,
+                orElse: () => Placanje(placanjeId: 0, nacinPlacanja: ''),
+              );
 
-                  return DataRow(cells: [
-                    DataCell(
-                        Text("${korisnikIme?.ime} ${korisnikIme!.prezime}")),
-                    DataCell(Text(proizvodNaziv?.nazivProizvoda ?? "")),
-                    DataCell(Text(nacinPlacanjaNaziv?.nacinPlacanja ?? "")),
-                    DataCell(Text(e.datumNarudzbe.toString())),
-                    DataCell(Text(e.kolicinaProizvoda.toString())),
-                    DataCell(Text(e.iznosNarudzbe.toString())),
-                  ]);
-                }).toList() ??
-                [],
+              return DataRow(cells: [
+                DataCell(Text("${korisnikIme!.ime} ${korisnikIme.prezime}")),
+                DataCell(Text(proizvodNaziv!.nazivProizvoda!)),
+                DataCell(Text(nacinPlacanjaNaziv!.nacinPlacanja!)),
+                DataCell(Text(e.datumNarudzbe.toString().split(" ")[0])),
+                DataCell(Text(e.kolicinaProizvoda.toString())),
+                DataCell(Text(e.iznosNarudzbe.toString())),
+                DataCell(
+                  ElevatedButton(
+                    onPressed: () {
+                      // Navigacija na screen koji prikazuje status
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => StatusNarudzbaScreen(
+                           narudzbaId : e.narudzbaId!, // prosledi ID narudžbe
+                          ),
+                        ),
+                      );
+                    },
+                    child: Text("Status"),
+                  ),
+                ),
+              ]);
+            }).toList(),
           ),
         ),
       ),

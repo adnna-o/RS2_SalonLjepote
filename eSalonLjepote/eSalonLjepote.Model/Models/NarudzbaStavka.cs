@@ -11,7 +11,7 @@ namespace eSalonLjepote.Model.Models
         public int NarudzbaStavkaId { get; set; }
         public int? NarudzbaId { get; set; }
         public int? ProizvodId { get; set; }
-        public int? Kolicina { get; set; }
+        public int? KolicinaProizvoda { get; set; }
         public decimal? Cijena { get; set; }
 
        // public virtual Narudzba Narudzba { get; set; }

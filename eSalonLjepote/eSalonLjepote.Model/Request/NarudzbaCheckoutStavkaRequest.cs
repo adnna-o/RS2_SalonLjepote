@@ -9,7 +9,7 @@ namespace eSalonLjepote.Model.Request
     public class NarudzbaCheckoutStavkaRequest
     {
         public int? ProizvodId { get; set; }
-        public int? Kolicina { get; set; }
+        public int? KolicinaProizvoda { get; set; }
         public decimal? Cijena { get; set; }
 
     }

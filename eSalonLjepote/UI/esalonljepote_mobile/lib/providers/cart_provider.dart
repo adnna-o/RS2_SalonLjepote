@@ -18,21 +18,21 @@ class CartProvider extends BaseProvider<Korpa> {
 
   double get totalPrice {
     return _cartItems.fold(
-        0, (sum, item) => sum + (item.proizvod?.cijena! ?? 0) * (item.kolicina ?? 0));
+        0,
+        (sum, item) =>
+            sum + (item.proizvod?.cijena! ?? 0) * (item.kolicinaProizvoda ?? 0));
   }
 
   List<Korpa> get cartItems => _cartItems;
 
-  Future<Korpa> addToCart(int korisnikId, int proizvodId,double cijena, {int kolicina = 1} ) async {
+  Future<Korpa> addToCart(int korisnikId, int proizvodId, double cijena,
+      {int kolicinaProizvoda= 1}) async {
     final request = {
       "korisnikId": korisnikId,
       "proizvodId": proizvodId,
-      "kolicina": kolicina,
-      "cijena":cijena,
+      "kolicinaProizvoda": kolicinaProizvoda,
+      "cijena": cijena,
     };
     return insert(request);
   }
-
- 
-
 }

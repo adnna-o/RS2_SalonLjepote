@@ -10,7 +10,7 @@ Korpa _$KorpaFromJson(Map<String, dynamic> json) => Korpa(
       (json['korpaId'] as num?)?.toInt(),
       (json['korisnikId'] as num?)?.toInt(),
       (json['proizvodId'] as num?)?.toInt(),
-      (json['kolicina'] as num?)?.toInt(),
+      (json['kolicinaProizvoda'] as num?)?.toInt(),
       (json['cijena'] as num?)?.toDouble(),
       json['proizvod'] == null
           ? null
@@ -21,7 +21,7 @@ Map<String, dynamic> _$KorpaToJson(Korpa instance) => <String, dynamic>{
       'korpaId': instance.korpaId,
       'korisnikId': instance.korisnikId,
       'proizvodId': instance.proizvodId,
-      'kolicina': instance.kolicina,
+      'kolicinaProizvoda': instance.kolicinaProizvoda,
       'cijena': instance.cijena,
       'proizvod': instance.proizvod,
     };

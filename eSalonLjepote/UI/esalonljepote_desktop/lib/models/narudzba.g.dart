@@ -16,6 +16,9 @@ Narudzba _$NarudzbaFromJson(Map<String, dynamic> json) => Narudzba(
           : DateTime.parse(json['datumNarudzbe'] as String),
       kolicinaProizvoda: (json['kolicinaProizvoda'] as num?)?.toInt(),
       iznosNarudzbe: (json['iznosNarudzbe'] as num?)?.toDouble(),
+      statusNarudzbeId: (json['statusNarudzbeId'] as num?)?.toInt(),
+      stateMachine: json['stateMachine'] as String?,
+      paymentId: json['paymentId'] as String?,
       korisnik: (json['korisnik'] as List<dynamic>?)
               ?.map((e) => Korisnik.fromJson(e as Map<String, dynamic>))
               .toList() ??
@@ -34,6 +37,9 @@ Map<String, dynamic> _$NarudzbaToJson(Narudzba instance) => <String, dynamic>{
       'datumNarudzbe': instance.datumNarudzbe?.toIso8601String(),
       'kolicinaProizvoda': instance.kolicinaProizvoda,
       'iznosNarudzbe': instance.iznosNarudzbe,
+      'statusNarudzbeId': instance.statusNarudzbeId,
+      'stateMachine': instance.stateMachine,
+      'paymentId': instance.paymentId,
       'korisnik': instance.korisnik,
       'proizvod': instance.proizvod,
     };

@@ -7,6 +7,7 @@ import 'package:esalonljepote_desktop/providers/novosti_provider.dart';
 import 'package:esalonljepote_desktop/providers/placanje_provider.dart';
 import 'package:esalonljepote_desktop/providers/proizvod_provider.dart';
 import 'package:esalonljepote_desktop/providers/salonLjepote_provider.dart';
+import 'package:esalonljepote_desktop/providers/status_provider.dart';
 import 'package:esalonljepote_desktop/providers/termini_provider.dart';
 import 'package:esalonljepote_desktop/providers/usluga_provider.dart';
 import 'package:esalonljepote_desktop/providers/zaposleni_provider.dart';
@@ -38,6 +39,8 @@ void main() {
       ChangeNotifierProvider(create: (_) => NovostiProvider()),
       ChangeNotifierProvider(create: (_) => NarudzbaProvider()),
       ChangeNotifierProvider(create: (_) => PlacanjeProvider()),
+      ChangeNotifierProvider(create: (_) => StatusProvider()),
+
       
     ],
     child: const MyApp(),
