@@ -12,7 +12,7 @@ namespace eSalonLjepote.Model.Request
         public int ProizvodId { get; set; } = 1;
         public string? PaymentId { get; set; }
         public int? StatusId { get; set; }
-
+        public int? PlacanjeId { get; set; }
         public DateTime? DatumNarudzbe { get; set; }
     }
 }

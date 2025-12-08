@@ -16,14 +16,14 @@ class NarudzbaStavka {
     this.narudzbaId,
     this.proizvodId,
     this.datumNarudzbe,
-    this.kolicina,
+    this.kolicinaProizvoda,
     this.cijena,
   });
   int? narudzbaStavkaId;
   int? narudzbaId;
   int? proizvodId;
   DateTime? datumNarudzbe;
-  int? kolicina;
+  int? kolicinaProizvoda;
   double? cijena;
 
   factory NarudzbaStavka.fromJson(Map<String, dynamic> json) =>

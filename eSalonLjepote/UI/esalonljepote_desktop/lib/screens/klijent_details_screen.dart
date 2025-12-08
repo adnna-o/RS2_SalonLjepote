@@ -51,6 +51,7 @@ class _KlijentiDetailsScreenState extends State<KlijentiDetailsScreen> {
           ),
         );
       }
+      
     } else {
       try {
         final result = await _korisnikProvider.get();
@@ -99,7 +100,8 @@ class _KlijentiDetailsScreenState extends State<KlijentiDetailsScreen> {
             ),
           );
 
-          Navigator.of(context).pop();
+          Navigator.of(context).pop(true);
+
         } catch (e) {
           print('Error saving korisnik: $e');
           ScaffoldMessenger.of(context).showSnackBar(
@@ -140,7 +142,8 @@ class _KlijentiDetailsScreenState extends State<KlijentiDetailsScreen> {
             ),
           );
 
-          Navigator.of(context).pop();
+          Navigator.of(context).pop(true);
+
         } catch (e) {
           print('Error saving klijent: $e');
           ScaffoldMessenger.of(context).showSnackBar(

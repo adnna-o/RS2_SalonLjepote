@@ -26,6 +26,8 @@ class _StatusNarudzbaScreenState extends State<StatusNarudzbaScreen> {
   Narudzba? narudzba;
   Korisnik? korisnik;
 
+  int? _selectedStatusId;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -48,6 +50,7 @@ class _StatusNarudzbaScreenState extends State<StatusNarudzbaScreen> {
 
       if (narudzbaResult.result.isNotEmpty) {
         narudzba = narudzbaResult.result.first;
+        _selectedStatusId = narudzba!.statusNarudzbeId;
 
         // Dohvati korisnika narudžbe
         var korisnikResultData = await _korisnikProvider.get();
@@ -62,6 +65,39 @@ class _StatusNarudzbaScreenState extends State<StatusNarudzbaScreen> {
       });
     } catch (e) {
       print("Greška pri učitavanju podataka: $e");
+    }
+  }
+
+  Future<void> _updateStatus() async {
+    if (_selectedStatusId == null || narudzba == null) return;
+
+    try {
+      // Kreiramo kompletan payload kakav backend očekuje
+      final updateData = {
+        "narudzbaId": narudzba!.narudzbaId,
+        "korisnikId": narudzba!.korisnikId,
+        "datumNarudzbe": narudzba!.datumNarudzbe?.toIso8601String(),
+        "statusNarudzbeId": _selectedStatusId,
+        "iznosNarudzbe": narudzba!.iznosNarudzbe,
+      };
+
+      await _narudzbaProvider.update(
+        narudzba!.narudzbaId!,
+        updateData,
+      );
+
+      setState(() {
+        narudzba!.statusNarudzbeId = _selectedStatusId;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Status narudžbe je ažuriran.")),
+      );
+    } catch (e) {
+      print("PUT ERROR: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Greška pri ažuriranju statusa: $e")),
+      );
     }
   }
 
@@ -80,7 +116,8 @@ class _StatusNarudzbaScreenState extends State<StatusNarudzbaScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Card(
           elevation: 4,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -97,7 +134,7 @@ class _StatusNarudzbaScreenState extends State<StatusNarudzbaScreen> {
                 ),
                 SizedBox(height: 16),
                 Text(
-                  "Status narudžbe:",
+                  "Trenutni status narudžbe:",
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 8),
@@ -109,7 +146,9 @@ class _StatusNarudzbaScreenState extends State<StatusNarudzbaScreen> {
                       bool isCurrent =
                           status.statusNarudzbeId == narudzba!.statusNarudzbeId;
                       return Card(
-                        color: isCurrent ? Colors.green.shade200 : Colors.grey.shade200,
+                        color: isCurrent
+                            ? Colors.green.shade200
+                            : Colors.grey.shade200,
                         child: ListTile(
                           title: Text(status.naziv ?? "Nepoznat status"),
                           trailing: isCurrent
@@ -119,6 +158,34 @@ class _StatusNarudzbaScreenState extends State<StatusNarudzbaScreen> {
                       );
                     },
                   ),
+                ),
+                SizedBox(height: 16),
+                Text(
+                  "Promijeni status narudžbe:",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                DropdownButton<int>(
+                  value: _selectedStatusId,
+                  isExpanded: true,
+                  items: statusResult!.result.map((status) {
+                    return DropdownMenuItem<int>(
+                      value: status.statusNarudzbeId,
+                      child: Text(status.naziv ?? "Nepoznat status"),
+                    );
+                  }).toList(),
+                  onChanged: (val) {
+                    setState(() {
+                      _selectedStatusId = val;
+                    });
+                  },
+                ),
+                SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: _selectedStatusId != null &&
+                          _selectedStatusId != narudzba!.statusNarudzbeId
+                      ? _updateStatus
+                      : null,
+                  child: Text("Sačuvaj promjenu"),
                 ),
               ],
             ),

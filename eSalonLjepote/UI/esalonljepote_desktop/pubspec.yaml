@@ -47,6 +47,7 @@ dependencies:
   google_fonts: ^5.0.0
 
 dev_dependencies:
+  data_table_2: ^2.5.0
   json_serializable: ^6.7.0
   build_runner: ^2.4.9
   flutter_test:

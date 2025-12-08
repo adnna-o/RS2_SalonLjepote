@@ -155,7 +155,6 @@ class _ZakaziTerminScreenState extends State<ZakaziTerminScreen> {
   }
 
   List<String> _dostupniSati(DateTime dan, int zaposleniId) {
-    // radno vrijeme 09:00–19:00
     final sveOpcije = List.generate(10, (i) {
       final sat = 9 + i;
       return '${sat.toString().padLeft(2, '0')}:00';

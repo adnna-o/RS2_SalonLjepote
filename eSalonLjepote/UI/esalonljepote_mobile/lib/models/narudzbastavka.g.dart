@@ -14,7 +14,7 @@ NarudzbaStavka _$NarudzbaStavkaFromJson(Map<String, dynamic> json) =>
       datumNarudzbe: json['datumNarudzbe'] == null
           ? null
           : DateTime.parse(json['datumNarudzbe'] as String),
-      kolicina: (json['kolicina'] as num?)?.toInt(),
+      kolicinaProizvoda: (json['kolicinaProizvoda'] as num?)?.toInt(),
       cijena: (json['cijena'] as num?)?.toDouble(),
     );
 
@@ -24,6 +24,6 @@ Map<String, dynamic> _$NarudzbaStavkaToJson(NarudzbaStavka instance) =>
       'narudzbaId': instance.narudzbaId,
       'proizvodId': instance.proizvodId,
       'datumNarudzbe': instance.datumNarudzbe?.toIso8601String(),
-      'kolicina': instance.kolicina,
+      'kolicinaProizvoda': instance.kolicinaProizvoda,
       'cijena': instance.cijena,
     };

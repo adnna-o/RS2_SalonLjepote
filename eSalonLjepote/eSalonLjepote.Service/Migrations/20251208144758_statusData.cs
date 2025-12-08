@@ -6,178 +6,164 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace eSalonLjepote.Service.Migrations
 {
     /// <inheritdoc />
-    public partial class korpData : Migration
+    public partial class statusData : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameColumn(
-                name: "Kolicina",
-                table: "Korpa",
-                newName: "KolicinaProizvoda");
+            migrationBuilder.DeleteData(
+                table: "Status",
+                keyColumn: "StatusNarudzbeId",
+                keyValue: 8576);
 
             migrationBuilder.UpdateData(
                 table: "Korisnik",
                 keyColumn: "KorisnikId",
                 keyValue: 1001,
                 columns: new[] { "LozinkaHash", "LozinkaSalt" },
-                values: new object[] { "+bwrh9v639E36KBQt8y1CWbNRJE=", "LGowJv4NC2iAK3fw52QYHQ==" });
+                values: new object[] { "QdGXjmW1PmBuj3n8c30OrrtDrsE=", "AyqT0jL0/ELJE+BAMN1orA==" });
 
             migrationBuilder.UpdateData(
                 table: "Korisnik",
                 keyColumn: "KorisnikId",
                 keyValue: 1002,
                 columns: new[] { "LozinkaHash", "LozinkaSalt" },
-                values: new object[] { "pEwqXyI9wSdR6DDLS1se0YykanQ=", "Za5rA04FutctMmOPIn0wtw==" });
+                values: new object[] { "kmJEmAdpOjNkq7CTGPKG8GK8ou8=", "HhIt7H1S/wlhNr5HS0EXyA==" });
 
             migrationBuilder.UpdateData(
                 table: "Korisnik",
                 keyColumn: "KorisnikId",
                 keyValue: 1003,
                 columns: new[] { "LozinkaHash", "LozinkaSalt" },
-                values: new object[] { "n5rg4SV7G0kPETZDYRic6k9OPBU=", "hZHQaBVvdlUdDcZPpNbWQw==" });
+                values: new object[] { "9mlpxYUPUju9+Hut9bj99u1DG74=", "7pO5vBlFmouIT5Wkn8O9Nw==" });
 
             migrationBuilder.UpdateData(
                 table: "Korisnik",
                 keyColumn: "KorisnikId",
                 keyValue: 1004,
                 columns: new[] { "LozinkaHash", "LozinkaSalt" },
-                values: new object[] { "JF8SaSWXDW0xATrFNoI0zr3N5NE=", "Cw9rMNjxu1apykJl7441Gw==" });
+                values: new object[] { "QydKFZvgUBjGQ2nUQ7/hL7Eb7Nk=", "Xh4liB14FlskwiErBQunyw==" });
 
             migrationBuilder.UpdateData(
                 table: "Korisnik",
                 keyColumn: "KorisnikId",
                 keyValue: 1005,
                 columns: new[] { "LozinkaHash", "LozinkaSalt" },
-                values: new object[] { "STFZtDlgIcZ6QJUCBme0JBtRfIk=", "Rx5K6scb2Rp7d1R9mLpVlA==" });
+                values: new object[] { "h04fVn75e+JgpKDzgmAY38n4e1M=", "tWrPVQUNCvOYCvJ578xe0A==" });
 
             migrationBuilder.UpdateData(
                 table: "KorisnikUloga",
                 keyColumn: "KorisnikUlogaId",
                 keyValue: 1012,
                 column: "DatumIzmjene",
-                value: new DateTime(2025, 12, 7, 22, 12, 40, 294, DateTimeKind.Local).AddTicks(8399));
+                value: new DateTime(2025, 12, 8, 15, 47, 57, 738, DateTimeKind.Local).AddTicks(4979));
 
             migrationBuilder.UpdateData(
                 table: "KorisnikUloga",
                 keyColumn: "KorisnikUlogaId",
                 keyValue: 1013,
                 column: "DatumIzmjene",
-                value: new DateTime(2025, 12, 7, 22, 12, 40, 294, DateTimeKind.Local).AddTicks(8477));
+                value: new DateTime(2025, 12, 8, 15, 47, 57, 738, DateTimeKind.Local).AddTicks(5042));
 
             migrationBuilder.UpdateData(
                 table: "KorisnikUloga",
                 keyColumn: "KorisnikUlogaId",
                 keyValue: 1014,
                 column: "DatumIzmjene",
-                value: new DateTime(2025, 12, 7, 22, 12, 40, 294, DateTimeKind.Local).AddTicks(8479));
+                value: new DateTime(2025, 12, 8, 15, 47, 57, 738, DateTimeKind.Local).AddTicks(5044));
 
             migrationBuilder.UpdateData(
                 table: "KorisnikUloga",
                 keyColumn: "KorisnikUlogaId",
                 keyValue: 1015,
                 column: "DatumIzmjene",
-                value: new DateTime(2025, 12, 7, 22, 12, 40, 294, DateTimeKind.Local).AddTicks(8482));
+                value: new DateTime(2025, 12, 8, 15, 47, 57, 738, DateTimeKind.Local).AddTicks(5046));
 
             migrationBuilder.UpdateData(
                 table: "KorisnikUloga",
                 keyColumn: "KorisnikUlogaId",
                 keyValue: 1016,
                 column: "DatumIzmjene",
-                value: new DateTime(2025, 12, 7, 22, 12, 40, 294, DateTimeKind.Local).AddTicks(8484));
-
-            migrationBuilder.UpdateData(
-                table: "RadnoVrijeme",
-                keyColumn: "RadnoVrijemeId",
-                keyValue: 7001,
-                columns: new[] { "RadnoVrijemeDo", "RadnoVrijemeOd" },
-                values: new object[] { new DateTime(2025, 12, 7, 16, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2025, 12, 7, 8, 0, 0, 0, DateTimeKind.Unspecified) });
+                value: new DateTime(2025, 12, 8, 15, 47, 57, 738, DateTimeKind.Local).AddTicks(5048));
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameColumn(
-                name: "KolicinaProizvoda",
-                table: "Korpa",
-                newName: "Kolicina");
-
             migrationBuilder.UpdateData(
                 table: "Korisnik",
                 keyColumn: "KorisnikId",
                 keyValue: 1001,
                 columns: new[] { "LozinkaHash", "LozinkaSalt" },
-                values: new object[] { "atj4WVS2nhJvPrcBtUHDEXkQzy8=", "VzqzZUbtbOJa8BRXeOLWfA==" });
+                values: new object[] { "na6+S+ooxRmcRk2hJYCEQjlur5o=", "+71P4aQsCsT5OCyskNn17A==" });
 
             migrationBuilder.UpdateData(
                 table: "Korisnik",
                 keyColumn: "KorisnikId",
                 keyValue: 1002,
                 columns: new[] { "LozinkaHash", "LozinkaSalt" },
-                values: new object[] { "cLFMZnD4DvZWnoVKT4G67+1jzdE=", "ePV31R90lw/ha2xcElwNBQ==" });
+                values: new object[] { "YbjCKzd1f4iJNgBrwre3VgYqczA=", "zRIrLe7ozOlnf/DCdYkcbg==" });
 
             migrationBuilder.UpdateData(
                 table: "Korisnik",
                 keyColumn: "KorisnikId",
                 keyValue: 1003,
                 columns: new[] { "LozinkaHash", "LozinkaSalt" },
-                values: new object[] { "cNyIt7WEDP6utHMcvOHOAAHyRgo=", "TrMDPsZxXJxszTRhCTUI/Q==" });
+                values: new object[] { "URj3aX27t50tYJjrLjB14VVw76s=", "oGTaFmNbj1EAWmrQCq/SqA==" });
 
             migrationBuilder.UpdateData(
                 table: "Korisnik",
                 keyColumn: "KorisnikId",
                 keyValue: 1004,
                 columns: new[] { "LozinkaHash", "LozinkaSalt" },
-                values: new object[] { "lmdgSoW2+wZnjoZ9xkJ9/bedI7E=", "AZarj/qt9TMHfPePpyjb5Q==" });
+                values: new object[] { "4P+guLBq+IxVBBv6vzmlEHTSyJg=", "QO5/KCVSAJYybSc7IDELNQ==" });
 
             migrationBuilder.UpdateData(
                 table: "Korisnik",
                 keyColumn: "KorisnikId",
                 keyValue: 1005,
                 columns: new[] { "LozinkaHash", "LozinkaSalt" },
-                values: new object[] { "2YyF4ehOfexfjc2mkaOHRWYDLTo=", "lMp31xnrYkmjbstZ951qNA==" });
+                values: new object[] { "r5H/WB/q5SBR/ASd0BIYjqUdnns=", "IhAZ7g0PVU8pORFSMJpreQ==" });
 
             migrationBuilder.UpdateData(
                 table: "KorisnikUloga",
                 keyColumn: "KorisnikUlogaId",
                 keyValue: 1012,
                 column: "DatumIzmjene",
-                value: new DateTime(2025, 12, 6, 13, 20, 46, 296, DateTimeKind.Local).AddTicks(4455));
+                value: new DateTime(2025, 12, 8, 15, 35, 25, 502, DateTimeKind.Local).AddTicks(981));
 
             migrationBuilder.UpdateData(
                 table: "KorisnikUloga",
                 keyColumn: "KorisnikUlogaId",
                 keyValue: 1013,
                 column: "DatumIzmjene",
-                value: new DateTime(2025, 12, 6, 13, 20, 46, 296, DateTimeKind.Local).AddTicks(4523));
+                value: new DateTime(2025, 12, 8, 15, 35, 25, 502, DateTimeKind.Local).AddTicks(1043));
 
             migrationBuilder.UpdateData(
                 table: "KorisnikUloga",
                 keyColumn: "KorisnikUlogaId",
                 keyValue: 1014,
                 column: "DatumIzmjene",
-                value: new DateTime(2025, 12, 6, 13, 20, 46, 296, DateTimeKind.Local).AddTicks(4525));
+                value: new DateTime(2025, 12, 8, 15, 35, 25, 502, DateTimeKind.Local).AddTicks(1045));
 
             migrationBuilder.UpdateData(
                 table: "KorisnikUloga",
                 keyColumn: "KorisnikUlogaId",
                 keyValue: 1015,
                 column: "DatumIzmjene",
-                value: new DateTime(2025, 12, 6, 13, 20, 46, 296, DateTimeKind.Local).AddTicks(4527));
+                value: new DateTime(2025, 12, 8, 15, 35, 25, 502, DateTimeKind.Local).AddTicks(1047));
 
             migrationBuilder.UpdateData(
                 table: "KorisnikUloga",
                 keyColumn: "KorisnikUlogaId",
                 keyValue: 1016,
                 column: "DatumIzmjene",
-                value: new DateTime(2025, 12, 6, 13, 20, 46, 296, DateTimeKind.Local).AddTicks(4530));
+                value: new DateTime(2025, 12, 8, 15, 35, 25, 502, DateTimeKind.Local).AddTicks(1049));
 
-            migrationBuilder.UpdateData(
-                table: "RadnoVrijeme",
-                keyColumn: "RadnoVrijemeId",
-                keyValue: 7001,
-                columns: new[] { "RadnoVrijemeDo", "RadnoVrijemeOd" },
-                values: new object[] { new DateTime(2025, 12, 6, 16, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2025, 12, 6, 8, 0, 0, 0, DateTimeKind.Unspecified) });
+            migrationBuilder.InsertData(
+                table: "Status",
+                columns: new[] { "StatusNarudzbeId", "Naziv" },
+                values: new object[] { 8576, "otkazano" });
         }
     }
 }

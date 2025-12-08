@@ -31,5 +31,8 @@ namespace eSalonLjepote.Model.Request.SearchRequest
         public DateTime? DatumDo { get; set; }          // Period do
         public decimal? IznosOd { get; set; }           // Iznos od
         public decimal? IznosDo { get; set; }
+        public string? NazivStatusa { get; set; }
+        public int? StatusNarudzbeId { get; set; }
+
     }
 }

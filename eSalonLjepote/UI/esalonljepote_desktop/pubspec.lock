@@ -209,6 +209,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.6"
+  data_table_2:
+    dependency: "direct dev"
+    description:
+      name: data_table_2
+      sha256: cb31d465dcf1e1598a662d06d3d2c16c73700ae9e837a3d91588f1dda7519abc
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.7.2"
   fake_async:
     dependency: transitive
     description:
@@ -951,4 +959,4 @@ packages:
     version: "3.1.2"
 sdks:
   dart: ">=3.8.0-0 <4.0.0"
-  flutter: ">=3.19.0"
+  flutter: ">=3.27.0"

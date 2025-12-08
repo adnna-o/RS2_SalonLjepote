@@ -69,7 +69,7 @@ namespace eSalonLjepote.API.Controllers
             if (req == null || req.KorisnikId <= 0)
                 return BadRequest("Neispravan zahtjev.");
 
-            var id = await _service.CheckoutFromCart(req.KorisnikId, req.StatusId, req.PaymentId, req.DatumNarudzbe);
+            var id = await _service.CheckoutFromCart(req.KorisnikId, req.StatusId, req.PaymentId, req.DatumNarudzbe, req.PlacanjeId);
             return Ok(id);
         }
 

@@ -5,46 +5,47 @@ import 'package:esalonljepote_mobile/providers/korisnik_provider.dart';
 import 'package:esalonljepote_mobile/providers/narudzba_provider.dart';
 import 'package:esalonljepote_mobile/providers/narudzba_stavka_provider.dart';
 import 'package:esalonljepote_mobile/providers/proizvod_provider.dart';
+import 'package:esalonljepote_mobile/screens/proizvod_screen.dart';
 import 'package:esalonljepote_mobile/utils/util.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+ 
 class OrdersScreen extends StatefulWidget {
   @override
   _OrdersScreenState createState() => _OrdersScreenState();
 }
-
+ 
 class _OrdersScreenState extends State<OrdersScreen> {
   bool _isLoading = true;
   late KorisnikProvider _korisnikProvider;
   late NarudzbaProvider _narudzbaProvider;
   late NarudzbaStavkaProvider stavkeProvider;
   late ProizvodProvider productProvider;
-
+ 
   List<Narudzba> _narudzbe = [];
   Map<int, List<NarudzbaStavka>> _stavkePoNarudzbi = {};
   Map<int, Proizvod> _proizvodById = {};
   Map<int, String> _korisniciById = {};
-
+ 
   @override
   void initState() {
     super.initState();
     _loadNarudzbe();
   }
-
+ 
   Future<void> _loadNarudzbe() async {
     if (Authorization.userId == null) {
       _toast('Korisnik nije ulogovan.');
       setState(() => _isLoading = false);
       return;
     }
-
+ 
     try {
       _narudzbaProvider = context.read<NarudzbaProvider>();
       stavkeProvider = context.read<NarudzbaStavkaProvider>();
       productProvider = context.read<ProizvodProvider>();
       _korisnikProvider = context.read<KorisnikProvider>();
-
+ 
       final korisniciResult = await _korisnikProvider.get();
       _korisniciById = {
         for (final k in korisniciResult.result)
@@ -52,11 +53,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
       };
       final narudzbeResult =
           await _narudzbaProvider.getByUser(Authorization.userId!);
-
+ 
       final narudzbe = (narudzbeResult.result ?? [])
           .where((n) => n.korisnikId == Authorization.userId)
           .toList();
-
+ 
       if (narudzbe.isEmpty) {
         setState(() {
           _narudzbe = [];
@@ -66,42 +67,42 @@ class _OrdersScreenState extends State<OrdersScreen> {
         });
         return;
       }
-
+ 
       final stavkeResult = await stavkeProvider.get();
       final idsNarudzbi =
           narudzbe.map((n) => n.narudzbaId).whereType<int>().toSet();
-
+ 
       final Map<int, List<NarudzbaStavka>> stavkeMap = {};
-      final Set<int> potrebniProizvodIds = {};
-
+      final Set<int> potrebniproizvodIds = {};
+ 
       for (final s in (stavkeResult.result ?? [])) {
         final nid = s.narudzbaId;
         if (nid == null || !idsNarudzbi.contains(nid)) continue;
-
+ 
         (stavkeMap[nid] ??= []).add(s);
-        if (s.proizvodId != null) potrebniProizvodIds.add(s.proizvodId!);
+        if (s.proizvodId != null) potrebniproizvodIds.add(s.proizvodId!);
       }
-
-      final proizvodResult = await productProvider.get();
-      final Map<int, Proizvod> proizvodMap = {};
-      for (final j in (proizvodResult.result ?? [])) {
+ 
+      final jelaResult = await productProvider.get();
+      final Map<int, Proizvod> jelaMap = {};
+      for (final j in (jelaResult.result ?? [])) {
         final id = j.proizvodId;
-        if (id != null && potrebniProizvodIds.contains(id)) {
-          proizvodMap[id] = j;
+        if (id != null && potrebniproizvodIds.contains(id)) {
+          jelaMap[id] = j;
         }
       }
-
-      for (final jid in potrebniProizvodIds) {
-        if (!proizvodMap.containsKey(jid)) {
+ 
+      for (final jid in potrebniproizvodIds) {
+        if (!jelaMap.containsKey(jid)) {
           debugPrint(
-              "Upozorenje: proizvodId=$jid nije pronađen u ProductProvider.get()");
+              "Upozorenje: jeloId=$jid nije pronađen u ProductProvider.get()");
         }
       }
-
+ 
       setState(() {
         _narudzbe = narudzbe;
         _stavkePoNarudzbi = stavkeMap;
-        _proizvodById = proizvodMap;
+        _proizvodById = jelaMap;
         _isLoading = false;
       });
     } catch (e) {
@@ -110,40 +111,48 @@ class _OrdersScreenState extends State<OrdersScreen> {
       _toast('Greška pri dohvatu narudžbi.');
     }
   }
-
+ 
   String _naziviJelaZaNarudzbu(int? narudzbaId) {
     if (narudzbaId == null) return "-";
     final stavke = _stavkePoNarudzbi[narudzbaId] ?? [];
     if (stavke.isEmpty) return "(nema stavki)";
-
+ 
     final nazivi = <String>[];
     for (final s in stavke) {
       final jid = s.proizvodId;
       final j = (jid != null) ? _proizvodById[jid] : null;
-      nazivi.add(j?.nazivProizvoda ?? "Proizvod #${jid ?? '?'}");
+      nazivi.add(j?.nazivProizvoda ?? "Jelo #${jid ?? '?'}");
     }
-
+ 
     const maxPrikaza = 3;
     if (nazivi.length > maxPrikaza) {
       return "${nazivi.take(maxPrikaza).join(', ')} +${nazivi.length - maxPrikaza}";
     }
     return nazivi.join(', ');
   }
-
+ 
   void _toast(String message) {
     if (!mounted) return;
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));
   }
-
+ 
   String _formatDatum(DateTime? dt) {
     if (dt == null) return "-";
     return "${dt.day.toString().padLeft(2, '0')}.${dt.month.toString().padLeft(2, '0')}.${dt.year}";
   }
-
+ 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+    onWillPop: () async {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => ProizvodScreen()),
+      );
+      return false; 
+    },
+    child:  Scaffold(
       appBar: AppBar(title: const Text("Historija mojih narudžbi")),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -155,7 +164,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                     final n = _narudzbe[i];
                     final stavke = _stavkePoNarudzbi[n.narudzbaId] ?? [];
                     final meta = _statusMeta(n);
-
+ 
                     return Card(
                       margin: const EdgeInsets.symmetric(
                           vertical: 6, horizontal: 12),
@@ -220,11 +229,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                 return ListTile(
                                   leading: const Icon(Icons.fastfood_rounded),
                                   title:
-                                      Text(j?.nazivProizvoda ?? "Proizvod #${jid ?? '?'}"),
+                                      Text(j?.nazivProizvoda ?? "Jelo #${jid ?? '?'}"),
                                   subtitle:
-                                      Text("Količina: ${s.kolicina ?? 0}"),
+                                      Text("Količina: ${s.kolicinaProizvoda ?? 0}"),
                                   trailing: Text(
-                                    "${(s.cijena ?? ((s.cijena ?? 0) * (s.kolicina ?? 1))).toStringAsFixed(2)} KM",
+                                    "${(s.cijena ?? ((s.cijena ?? 0) * (s.kolicinaProizvoda ?? 1))).toStringAsFixed(2)} KM",
                                     style: const TextStyle(
                                         fontWeight: FontWeight.w600),
                                   ),
@@ -234,20 +243,20 @@ class _OrdersScreenState extends State<OrdersScreen> {
                     );
                   },
                 ),
-    );
+    ));
   }
 }
-
+ 
 class _StatusMeta {
   final String label;
   final IconData icon;
   final Color color;
   const _StatusMeta(this.label, this.icon, this.color);
 }
-
+ 
 _StatusMeta _statusMeta(Narudzba n) {
   final raw = (n.stateMachine ?? '').toLowerCase();
-
+ 
   if (raw.contains('kreiran')) {
     return _StatusMeta('Kreirana', Icons.fiber_new_rounded, Colors.blue);
   }

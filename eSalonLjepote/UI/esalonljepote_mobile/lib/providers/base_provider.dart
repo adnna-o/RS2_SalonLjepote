@@ -238,7 +238,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
   }
 
   /// Checkout iz korpe
- /* Future<int> checkoutFromCart(
+  /* Future<int> checkoutFromCart(
     int userId,
     String? paymentId, {
     int? proizvodId,
@@ -272,7 +272,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
     }
   }*/
 
- /* Future<int> checkoutFromCart(int korisnikId, String? paymentId,
+  /* Future<int> checkoutFromCart(int korisnikId, String? paymentId,
     {DateTime? datumNarudzbe, int? placanjeId}) async {
   final request = {
     "korisnikId": korisnikId,
@@ -294,7 +294,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
   }
 }*/
 
- /*Future<int> checkoutFromCart(
+  /*Future<int> checkoutFromCart(
     int korisnikId,
     String? paypalPaymentId, {
     DateTime? datumNarudzbe,
@@ -325,45 +325,43 @@ abstract class BaseProvider<T> with ChangeNotifier {
     }
   }*/
 
-    Future<int> checkoutFromCart(
-  int userId,
-  String? paymentId, {
-  int? statusId,
-  DateTime? datumNarudzbe,
-}) async {
-  final uri = Uri.parse('${_baseUrl}Narudzba/checkoutFromCart');
-  final headers = createHeaders();
+  Future<int> checkoutFromCart(
+    int userId,
+    String? paymentId, {
+    int? statusId,
+    DateTime? datumNarudzbe,
+    int? placanjeId,
+  }) async {
+    final uri = Uri.parse('${_baseUrl}Narudzba/checkoutFromCart');
+    final headers = createHeaders();
 
-  final bodyMap = <String, dynamic>{
-    "korisnikId": userId,
-    "paymentId": paymentId,
-    if (statusId != null) "statusId": statusId,
-    if (datumNarudzbe != null)
-      "datumNarudzbe": datumNarudzbe.toIso8601String(),
+    final bodyMap = <String, dynamic>{
+      "korisnikId": userId,
+      "paymentId": paymentId,
+      if (statusId != null) "statusId": statusId,
+      if (datumNarudzbe != null)
+        "datumNarudzbe": datumNarudzbe.toIso8601String(),
+      "placanjeId":placanjeId,
+    };
 
-  };
+    final resp = await http.post(
+      uri,
+      headers: headers,
+      body: jsonEncode(bodyMap),
+    );
 
-  final resp = await http.post(
-    uri,
-    headers: headers,
-    body: jsonEncode(bodyMap),
-  );
+    debugPrint('checkoutFromCart ${resp.statusCode}: ${resp.body}');
 
-  debugPrint('checkoutFromCart ${resp.statusCode}: ${resp.body}');
-
-  if (resp.statusCode >= 200 && resp.statusCode < 300) {
-    final data = jsonDecode(resp.body);
-    return data is int ? data : int.parse(data.toString());
-  } else {
-    throw Exception('Checkout failed: ${resp.statusCode} ${resp.body}');
+    if (resp.statusCode >= 200 && resp.statusCode < 300) {
+      final data = jsonDecode(resp.body);
+      return data is int ? data : int.parse(data.toString());
+    } else {
+      throw Exception('Checkout failed: ${resp.statusCode} ${resp.body}');
+    }
   }
-}
-
 
   Future<SearchResult<T>> getTermini() async {
-  var result = await get();
-  return result;
-}
-
-
+    var result = await get();
+    return result;
+  }
 }
