@@ -13,6 +13,7 @@ import 'package:esalonljepote_desktop/providers/zaposleni_provider.dart';
 import 'package:esalonljepote_desktop/widget/master_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 
@@ -48,7 +49,9 @@ class _ZaposleniDetailsScreen extends State<ZaposleniDetailsScreen> {
       'korisnikId': widget.zaposleni?.korisnikId,
       'zaposleniId': widget.zaposleni?.zaposleniId,
       'zanimanje': widget.zaposleni?.zanimanje,
-      'datumZaposlenja': widget.zaposleni?.datumZaposlenja,
+      'datumZaposlenja': widget.zaposleni?.datumZaposlenja != null
+          ? DateFormat('dd.MM.yyyy').format(widget.zaposleni!.datumZaposlenja!)
+          : '',
     };
   }
 

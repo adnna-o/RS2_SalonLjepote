@@ -806,6 +806,11 @@ namespace eSaljonLjepote.Services.Database
             modelBuilder.Entity<Status>().HasData(
                new Status()
                {
+                   StatusNarudzbeId = 8576,
+                   Naziv = "otkazano"
+               },
+                new Status()
+               {
                    StatusNarudzbeId = 8578,
                    Naziv = "poslano"
                },
@@ -813,11 +818,6 @@ namespace eSaljonLjepote.Services.Database
                {
                    StatusNarudzbeId = 8579,
                    Naziv = "kreirano"
-               },
-               new Status()
-               {
-                   StatusNarudzbeId = 8576,
-                   Naziv = "otkazano"
                }
                );
 

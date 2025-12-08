@@ -93,6 +93,7 @@ class _StatusNarudzbaScreenState extends State<StatusNarudzbaScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Status narudžbe je ažuriran.")),
       );
+      Navigator.of(context).pop(true);
     } catch (e) {
       print("PUT ERROR: $e");
       ScaffoldMessenger.of(context).showSnackBar(

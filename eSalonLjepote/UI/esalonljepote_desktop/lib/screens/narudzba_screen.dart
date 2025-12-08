@@ -27,7 +27,6 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:provider/provider.dart';
 import 'package:data_table_2/data_table_2.dart';
 
-
 class NarudzbaScreen extends StatefulWidget {
   Narudzba? narudzba;
   NarudzbaScreen({Key? key, this.narudzba}) : super(key: key);
@@ -44,13 +43,11 @@ class _NarudzbaScreen extends State<NarudzbaScreen> {
   late PlacanjeProvider _placanjeProvider;
   late StatusProvider _statusProvider;
 
-
   SearchResult<Korisnik>? korisnikResult;
   SearchResult<Narudzba>? narudzbaResult;
   SearchResult<Proizvod>? proizvodResult;
   SearchResult<Placanje>? placanjeResult;
   SearchResult<Status>? statusResult;
-
 
   TextEditingController _imeKlijentaController = TextEditingController();
   TextEditingController _prezimeKlijentaController = TextEditingController();
@@ -59,7 +56,6 @@ class _NarudzbaScreen extends State<NarudzbaScreen> {
   TextEditingController _kolicinaController = TextEditingController();
   TextEditingController _statusNarudzbeController = TextEditingController();
 
-
   DateTime? _datumOd;
   DateTime? _datumDo;
 
@@ -67,7 +63,6 @@ class _NarudzbaScreen extends State<NarudzbaScreen> {
   Timer? _debounce;
   String? _selectedStatusId;
 
-//Inicijalizacija providera
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -77,11 +72,9 @@ class _NarudzbaScreen extends State<NarudzbaScreen> {
     _placanjeProvider = context.read<PlacanjeProvider>();
     _statusProvider = context.read<StatusProvider>();
 
-
     _fetchNarudzba();
   }
 
-//buduca funkcija
   Future<void> _fetchNarudzba() async {
     var korisnikData = await _korisnikProvider.get();
     var proizvodData = await _proizvodProvider.get();
@@ -89,14 +82,12 @@ class _NarudzbaScreen extends State<NarudzbaScreen> {
     var placanjeData = await _placanjeProvider.get();
     var statusData = await _statusProvider.get();
 
-
     setState(() {
       korisnikResult = korisnikData;
       proizvodResult = proizvodData;
       narudzbaResult = narudzbaData;
       placanjeResult = placanjeData;
       statusResult = statusData;
-
     });
   }
 
@@ -110,7 +101,6 @@ class _NarudzbaScreen extends State<NarudzbaScreen> {
         'kolicinaProizvoda': _kolicinaController.text.trim(),
         'iznosNarudzbe': _iznosController.text.trim(),
         'nazivStatusa': _statusNarudzbeController.text.trim(),
-
       });
       setState(() {
         narudzbaResult = data;
@@ -132,7 +122,6 @@ class _NarudzbaScreen extends State<NarudzbaScreen> {
       'datumOd': _datumOd?.toIso8601String(),
       'datumDo': _datumDo?.toIso8601String(),
       'nazivStatusa': _statusNarudzbeController.text.trim(),
-
     };
     if (_selectedStatusId != null && _selectedStatusId!.isNotEmpty) {
       filter['statusNarudzbeId'] = _selectedStatusId!;
@@ -146,6 +135,12 @@ class _NarudzbaScreen extends State<NarudzbaScreen> {
     });
   }
 
+  Map<String, Color> statusBoje = {
+    "reirano": Colors.blue,
+    "poslano": Colors.green,
+    "otkazano": Colors.red,
+  };
+
   Widget _buildSearch() {
     return Padding(
       padding: const EdgeInsets.all(12.0),
@@ -156,7 +151,6 @@ class _NarudzbaScreen extends State<NarudzbaScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              // Prvi red: ime i prezime klijenta
               Row(
                 children: [
                   Expanded(
@@ -196,10 +190,7 @@ class _NarudzbaScreen extends State<NarudzbaScreen> {
                   ),
                 ],
               ),
-
               SizedBox(height: 12),
-
-              // Drugi red: količina, iznos i sadržaj
               Row(
                 children: [
                   Expanded(
@@ -230,15 +221,12 @@ class _NarudzbaScreen extends State<NarudzbaScreen> {
                   Expanded(
                     child: TextField(
                       controller: _statusNarudzbeController,
-                      decoration:
-                          InputDecoration(labelText: "Status narudžbe"),
+                      decoration: InputDecoration(labelText: "Status narudžbe"),
                     ),
                   ),
                 ],
               ),
-
               SizedBox(height: 12),
-
               Row(
                 children: [
                   Row(
@@ -262,13 +250,12 @@ class _NarudzbaScreen extends State<NarudzbaScreen> {
                           }
                         },
                       ),
-                      // Dugme za poništavanje
                       if (_datumOd != null)
                         IconButton(
                           icon: Icon(Icons.close, color: Colors.red),
                           onPressed: () {
                             setState(() {
-                              _datumOd = null; // poništava datum
+                              _datumOd = null;
                             });
                           },
                         ),
@@ -296,13 +283,12 @@ class _NarudzbaScreen extends State<NarudzbaScreen> {
                           }
                         },
                       ),
-                      // Dugme za poništavanje
                       if (_datumDo != null)
                         IconButton(
                           icon: Icon(Icons.close, color: Colors.red),
                           onPressed: () {
                             setState(() {
-                              _datumDo = null; // poništava datum
+                              _datumDo = null;
                             });
                           },
                         ),
@@ -330,82 +316,131 @@ class _NarudzbaScreen extends State<NarudzbaScreen> {
     );
   }
 
- Widget _buildDataListView() {
-  return Padding(
-    padding: const EdgeInsets.all(12.0),
-    child: Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          return DataTable2(
-            columnSpacing: 12,
-            horizontalMargin: 12,
-            minWidth: 700, // minimalna širina bez overflowa
-            headingRowColor: MaterialStateProperty.all(
-              Color.fromARGB(255, 173, 160, 117),
-            ),
-            headingTextStyle:
-                TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-            columns: const [
-              DataColumn2(label: Text('Korisnik'), size: ColumnSize.L),
-              DataColumn2(label: Text('Proizvod'), size: ColumnSize.M),
-              DataColumn2(label: Text('Plaćanje'), size: ColumnSize.S),
-              DataColumn2(label: Text('Datum'), size: ColumnSize.S),
-              DataColumn2(label: Text('Količina'), size: ColumnSize.S),
-              DataColumn2(label: Text('Iznos'), size: ColumnSize.S),
-              DataColumn2(label: Text('Akcije'), size: ColumnSize.S),
-            ],
-            rows: (narudzbaResult?.result ?? []).map((Narudzba e) {
-              var korisnik = korisnikResult?.result.firstWhere(
-                (p) => p.korisnikId == e.korisnikId,
-                orElse: () => Korisnik(korisnikId: 0, ime: '', prezime: ''),
-              );
+  Widget _buildDataListView() {
+    if (narudzbaResult == null || narudzbaResult!.result.isEmpty) {
+      return Center(child: Text("Nema podataka za prikaz."));
+    }
 
-              var proizvod = proizvodResult?.result.firstWhere(
-                (p) => p.proizvodId == e.proizvodId,
-                orElse: () => Proizvod(proizvodId: 0, nazivProizvoda: ''),
-              );
+    // Mapa statusa i boja
+    Map<String, Color> statusBoje = {
+      "kreirano": Colors.blue,
+      "poslano": Colors.green,
+      "otkazano": Colors.red,
+    };
 
-              var placanje = placanjeResult?.result.firstWhere(
-                (p) => p.placanjeId == e.placanjeId,
-                orElse: () => Placanje(placanjeId: 0, nacinPlacanja: ''),
-              );
+    // Mapa statusa i ikona
+    Map<String, IconData> statusIkone = {
+      "kreirano": Icons.hourglass_empty,
+      "poslano": Icons.check_circle,
+      "otkazano": Icons.cancel,
+    };
 
-              return DataRow(cells: [
-                DataCell(Text("${korisnik!.ime} ${korisnik.prezime}",
-                    overflow: TextOverflow.ellipsis)),
-                DataCell(Text(proizvod!.nazivProizvoda!,
-                    overflow: TextOverflow.ellipsis)),
-                DataCell(Text(placanje!.nacinPlacanja!,
-                    overflow: TextOverflow.ellipsis)),
-                DataCell(Text(
-                    e.datumNarudzbe.toString().split(" ")[0],
-                    overflow: TextOverflow.ellipsis)),
-                DataCell(Text(e.kolicinaProizvoda.toString())),
-                DataCell(Text(e.iznosNarudzbe.toString())),
-                DataCell(
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              StatusNarudzbaScreen(narudzbaId: e.narudzbaId!),
+    return Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: ListView.builder(
+        itemCount: narudzbaResult!.result.length,
+        itemBuilder: (context, index) {
+          Narudzba e = narudzbaResult!.result[index];
+
+          var korisnik = korisnikResult?.result.firstWhere(
+            (p) => p.korisnikId == e.korisnikId,
+            orElse: () => Korisnik(korisnikId: 0, ime: '', prezime: ''),
+          );
+
+          var proizvod = proizvodResult?.result.firstWhere(
+            (p) => p.proizvodId == e.proizvodId,
+            orElse: () => Proizvod(proizvodId: 0, nazivProizvoda: ''),
+          );
+
+          var placanje = placanjeResult?.result.firstWhere(
+            (p) => p.placanjeId == e.placanjeId,
+            orElse: () => Placanje(placanjeId: 0, nacinPlacanja: ''),
+          );
+
+          var status = statusResult?.result.firstWhere(
+            (s) => s.statusNarudzbeId == e.statusNarudzbeId,
+          );
+
+          String statusKey = status!.naziv!.toLowerCase();
+          Color badgeColor = statusBoje[statusKey] ?? Colors.grey;
+          IconData badgeIcon = statusIkone[statusKey] ?? Icons.help_outline;
+
+          return Card(
+            margin: EdgeInsets.symmetric(vertical: 8),
+            elevation: 4,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "${korisnik!.ime} ${korisnik.prezime}",
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: badgeColor,
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                      );
-                    },
-                    child: Text("Status"),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(badgeIcon, color: Colors.white, size: 16),
+                            SizedBox(width: 4),
+                            Text(
+                              status.naziv!,
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ]);
-            }).toList(),
+                  SizedBox(height: 8),
+                  Text("Proizvod: ${proizvod!.nazivProizvoda}"),
+                  Text("Plaćanje: ${placanje!.nacinPlacanja}"),
+                  Text("Datum: ${e.datumNarudzbe.toString().split(' ')[0]}"),
+                  Text("Količina: ${e.kolicinaProizvoda}"),
+                  Text("Iznos: ${e.iznosNarudzbe}"),
+                  Text("Telefon korisnika: ${korisnik.telefon ?? ''}"),
+                  Text("Email korisnika: ${korisnik.email ?? ''}"),
+                  SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () async {
+                          final result = await Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => StatusNarudzbaScreen(
+                                  narudzbaId: e.narudzbaId!),
+                            ),
+                          );
+
+                          if (result == true) {
+                            _fetchNarudzba();
+                          }
+                        },
+                        child: Text("Status"),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           );
         },
       ),
-    ),
-  );
-}
-
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -419,7 +454,6 @@ class _NarudzbaScreen extends State<NarudzbaScreen> {
             ),
           ),
           child: Center(
-            // centriramo sadržaj horizontalno
             child: ConstrainedBox(
               constraints: BoxConstraints(maxWidth: maxWidth),
               child: Column(
