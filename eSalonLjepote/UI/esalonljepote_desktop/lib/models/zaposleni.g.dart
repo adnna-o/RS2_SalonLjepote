@@ -8,6 +8,9 @@ part of 'zaposleni.dart';
 
 Zaposleni _$ZaposleniFromJson(Map<String, dynamic> json) => Zaposleni(
       zaposleniId: (json['zaposleniId'] as num?)?.toInt(),
+      /*datumZaposlenja: json['datumZaposlenja'] != null
+          ? DateTime.parse(json['datumZaposlenja'] as String)
+          : null,*/
       datumZaposlenja: json['datumZaposlenja'] == null
           ? null
           : DateTime.parse(json['datumZaposlenja'] as String),

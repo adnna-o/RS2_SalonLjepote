@@ -69,6 +69,7 @@ class _CartScreenState extends State<CartScreen> {
           orElse: () =>
               Proizvod(nazivProizvoda: "Nepoznat proizvod", cijena: 0),
         );
+        item.kolicinaProizvoda ??= 1;
       }
       await _fetchInitialData();
 
@@ -356,7 +357,7 @@ class _CartScreenState extends State<CartScreen> {
         null,
         datumNarudzbe: _selectedDate,
       );
-    
+
       if (!mounted) return;
       _toast('Narudžba #$id kreirana (gotovina).');
       Navigator.pushReplacement(

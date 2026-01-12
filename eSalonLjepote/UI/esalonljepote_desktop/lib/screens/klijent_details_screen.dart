@@ -26,7 +26,7 @@ class _KlijentiDetailsScreenState extends State<KlijentiDetailsScreen> {
   Korisnik? _korisnik; // Za uređivanje postojećeg klijenta
   SearchResult<Korisnik>? _korisniciResult; // Za dropdown kod dodavanja
   Korisnik? _selectedKorisnik; // Odabrani korisnik kod dodavanja
-
+  bool _hasUnsavedChanges = false;
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -154,6 +154,31 @@ class _KlijentiDetailsScreenState extends State<KlijentiDetailsScreen> {
     }
   }
 
+  Future<bool> _confirmDiscardIfNeeded() async {
+    if (!_hasUnsavedChanges) return true;
+
+    final discard = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Odbaciti promjene?"),
+        content: const Text(
+            "Napravili ste izmjene koje nisu spašene. Želite li odustati i odbaciti promjene?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text("Nastavi uređivanje"),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text("Odbaci"),
+          ),
+        ],
+      ),
+    );
+
+    return discard ?? false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.klijenti != null && _korisnik != null;
@@ -249,9 +274,36 @@ class _KlijentiDetailsScreenState extends State<KlijentiDetailsScreen> {
                   SizedBox(height: 8),
                 ],
                 SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: _submitForm,
-                  child: Text(isEditing ? 'Spasi' : 'Dodaj'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: OutlinedButton(
+                        onPressed: () async {
+                          final canLeave = await _confirmDiscardIfNeeded();
+                          if (canLeave) Navigator.of(context).pop(false);
+                        },
+                        child: const Text("Odustani"),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orangeAccent,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 32, vertical: 12),
+                          textStyle: const TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                        ),
+                        onPressed: _submitForm,
+                        child: Text(isEditing ? 'Spasi' : 'Dodaj'),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

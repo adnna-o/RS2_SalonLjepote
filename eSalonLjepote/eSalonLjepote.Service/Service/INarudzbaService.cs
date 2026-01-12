@@ -26,5 +26,7 @@ namespace eSalonLjepote.Service.Service
         Task<List<string>> AllowedActions(int id);
         Task<Model.Models.Narudzba> Checkout(NarudzbaCheckoutRequest request);
         Task<int> CheckoutFromCart(int korisnikId, int? statusId = null, string? paymentId = null, DateTime? datumNarudzbe = null);
+
+        Task<List<Model.Models.Narudzba>> GetByKorisnik(int korisnikId);
     }
 }

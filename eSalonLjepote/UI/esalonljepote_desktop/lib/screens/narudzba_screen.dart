@@ -307,60 +307,65 @@ class _NarudzbaScreen extends State<NarudzbaScreen> {
         elevation: 4,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: DataTable(
-            headingRowColor:
-                MaterialStateProperty.all(Color.fromARGB(255, 173, 160, 117)),
-            headingTextStyle:
-                TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-            columns: const [
-              DataColumn(label: Text('Korisnik')),
-              DataColumn(label: Text('Proizvod')),
-              DataColumn(label: Text('Plaćanje')),
-              DataColumn(label: Text('Datum narudžbe')),
-              DataColumn(label: Text('Količina')),
-              DataColumn(label: Text('Iznos')),
-              DataColumn(label: Text('Akcije')), // nova kolona
-            ],
-            rows: (narudzbaResult?.result ?? []).map((Narudzba e) {
-              // Dummy objekti u slučaju da nije pronađen
-              var korisnikIme = korisnikResult?.result.firstWhere(
-                (p) => p.korisnikId == e.korisnikId,
-                orElse: () => Korisnik(korisnikId: 0, ime: '', prezime: ''),
-              );
-              var proizvodNaziv = proizvodResult?.result.firstWhere(
-                (p) => p.proizvodId == e.proizvodId,
-                orElse: () => Proizvod(proizvodId: 0, nazivProizvoda: ''),
-              );
-              var nacinPlacanjaNaziv = placanjeResult?.result.firstWhere(
-                (p) => p.placanjeId == e.placanjeId,
-                orElse: () => Placanje(placanjeId: 0, nacinPlacanja: ''),
-              );
+          scrollDirection:
+              Axis.vertical, // Make the table vertically scrollable
+          child: SingleChildScrollView(
+            scrollDirection:
+                Axis.horizontal, // Keep the table horizontally scrollable
+            child: DataTable(
+              headingRowColor:
+                  MaterialStateProperty.all(Color.fromARGB(255, 173, 160, 117)),
+              headingTextStyle:
+                  TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+              columns: const [
+                DataColumn(label: Text('Korisnik')),
+                DataColumn(label: Text('Proizvod')),
+                DataColumn(label: Text('Plaćanje')),
+                DataColumn(label: Text('Datum narudžbe')),
+                DataColumn(label: Text('Količina')),
+                DataColumn(label: Text('Iznos')),
+                DataColumn(label: Text('Akcije')), // nova kolona
+              ],
+              rows: (narudzbaResult?.result ?? []).map((Narudzba e) {
+                // Dummy objekti u slučaju da nije pronađen
+                var korisnikIme = korisnikResult?.result.firstWhere(
+                  (p) => p.korisnikId == e.korisnikId,
+                  orElse: () => Korisnik(korisnikId: 0, ime: '', prezime: ''),
+                );
+                var proizvodNaziv = proizvodResult?.result.firstWhere(
+                  (p) => p.proizvodId == e.proizvodId,
+                  orElse: () => Proizvod(proizvodId: 0, nazivProizvoda: ''),
+                );
+                var nacinPlacanjaNaziv = placanjeResult?.result.firstWhere(
+                  (p) => p.placanjeId == e.placanjeId,
+                  orElse: () => Placanje(placanjeId: 0, nacinPlacanja: ''),
+                );
 
-              return DataRow(cells: [
-                DataCell(Text("${korisnikIme!.ime} ${korisnikIme.prezime}")),
-                DataCell(Text(proizvodNaziv!.nazivProizvoda!)),
-                DataCell(Text(nacinPlacanjaNaziv!.nacinPlacanja!)),
-                DataCell(Text(e.datumNarudzbe.toString().split(" ")[0])),
-                DataCell(Text(e.kolicinaProizvoda.toString())),
-                DataCell(Text(e.iznosNarudzbe.toString())),
-                DataCell(
-                  ElevatedButton(
-                    onPressed: () {
-                      // Navigacija na screen koji prikazuje status
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => StatusNarudzbaScreen(
-                           narudzbaId : e.narudzbaId!, // prosledi ID narudžbe
+                return DataRow(cells: [
+                  DataCell(Text("${korisnikIme!.ime} ${korisnikIme.prezime}")),
+                  DataCell(Text(proizvodNaziv!.nazivProizvoda!)),
+                  DataCell(Text(nacinPlacanjaNaziv!.nacinPlacanja!)),
+                  DataCell(Text(e.datumNarudzbe.toString().split(" ")[0])),
+                  DataCell(Text(e.kolicinaProizvoda.toString())),
+                  DataCell(Text(e.iznosNarudzbe.toString())),
+                  DataCell(
+                    ElevatedButton(
+                      onPressed: () {
+                        // Navigacija na screen koji prikazuje status
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => StatusNarudzbaScreen(
+                              narudzbaId: e.narudzbaId!, // prosledi ID narudžbe
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                    child: Text("Status"),
+                        );
+                      },
+                      child: Text("Status"),
+                    ),
                   ),
-                ),
-              ]);
-            }).toList(),
+                ]);
+              }).toList(),
+            ),
           ),
         ),
       ),

@@ -16,14 +16,12 @@ Narudzba _$NarudzbaFromJson(Map<String, dynamic> json) => Narudzba(
           : DateTime.parse(json['datumNarudzbe'] as String),
       kolicinaProizvoda: (json['kolicinaProizvoda'] as num?)?.toInt(),
       iznosNarudzbe: (json['iznosNarudzbe'] as num?)?.toDouble(),
-      korisnik: (json['korisnik'] as List<dynamic>?)
-              ?.map((e) => Korisnik.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
-      proizvod: (json['proizvod'] as List<dynamic>?)
-              ?.map((e) => Proizvod.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
+      korisnik: json['korisnik'] == null
+          ? null
+          : Korisnik.fromJson(json['korisnik'] as Map<String, dynamic>),
+      proizvod: json['proizvod'] == null
+          ? null
+          : Proizvod.fromJson(json['proizvod'] as Map<String, dynamic>),
       paymentId: json['paymentId'] as String?,
       stateMachine: json['stateMachine'] as String?,
       statusNarudzbeId: (json['statusNarudzbeId'] as num?)?.toInt(),

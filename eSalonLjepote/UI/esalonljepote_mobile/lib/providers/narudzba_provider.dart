@@ -19,4 +19,6 @@ class NarudzbaProvider extends BaseProvider<Narudzba> {
   Future<SearchResult<Narudzba>> getByUser(int userId) async {
     return await get(filter: {"korisnikId": userId});
   }
+
+  
 }

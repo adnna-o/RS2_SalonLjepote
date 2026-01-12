@@ -50,6 +50,7 @@ class _NovostiDetailsScreen extends State<NovostiDetailsScreen> {
   late Map<String, dynamic> _initialValue;
 
   bool isLoading = false;
+  bool _hasUnsavedChanges = false;
 
   @override
   void initState() {
@@ -150,7 +151,30 @@ class _NovostiDetailsScreen extends State<NovostiDetailsScreen> {
       }
     }
   }
+  Future<bool> _confirmDiscardIfNeeded() async {
+    if (!_hasUnsavedChanges) return true;
 
+    final discard = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Odbaciti promjene?"),
+        content: const Text(
+            "Napravili ste izmjene koje nisu spašene. Želite li odustati i odbaciti promjene?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text("Nastavi uređivanje"),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text("Odbaci"),
+          ),
+        ],
+      ),
+    );
+
+    return discard ?? false;
+  }
   void _successDialogADD(String message) {
     showDialog(
       context: context,
@@ -317,10 +341,38 @@ class _NovostiDetailsScreen extends State<NovostiDetailsScreen> {
                 ),
                 SizedBox(height: 16),
                 SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: _submitForm,
-                  child: Text(widget.novosti == null ? 'Add' : 'Save'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: OutlinedButton(
+                        onPressed: () async {
+                          final canLeave = await _confirmDiscardIfNeeded();
+                          if (canLeave) Navigator.of(context).pop(false);
+                        },
+                        child: const Text("Odustani"),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orangeAccent,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 32, vertical: 12),
+                          textStyle: const TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                        ),
+                        onPressed: _submitForm,
+                        child: Text(widget.novosti == null ? 'Dodaj' : 'Spasi'),
+                      ),
+                    ),
+                  ],
                 ),
+               
               ],
             ),
           ),

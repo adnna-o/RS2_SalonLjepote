@@ -5,6 +5,7 @@ import 'package:esalonljepote_mobile/providers/korisnik_provider.dart';
 import 'package:esalonljepote_mobile/providers/narudzba_provider.dart';
 import 'package:esalonljepote_mobile/providers/narudzba_stavka_provider.dart';
 import 'package:esalonljepote_mobile/providers/proizvod_provider.dart';
+import 'package:esalonljepote_mobile/screens/proizvod_screen.dart';
 import 'package:esalonljepote_mobile/utils/util.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -72,36 +73,36 @@ class _OrdersScreenState extends State<OrdersScreen> {
           narudzbe.map((n) => n.narudzbaId).whereType<int>().toSet();
 
       final Map<int, List<NarudzbaStavka>> stavkeMap = {};
-      final Set<int> potrebniProizvodIds = {};
+      final Set<int> potrebniproizvodIds = {};
 
       for (final s in (stavkeResult.result ?? [])) {
         final nid = s.narudzbaId;
         if (nid == null || !idsNarudzbi.contains(nid)) continue;
 
         (stavkeMap[nid] ??= []).add(s);
-        if (s.proizvodId != null) potrebniProizvodIds.add(s.proizvodId!);
+        if (s.proizvodId != null) potrebniproizvodIds.add(s.proizvodId!);
       }
 
-      final proizvodResult = await productProvider.get();
-      final Map<int, Proizvod> proizvodMap = {};
-      for (final j in (proizvodResult.result ?? [])) {
+      final jelaResult = await productProvider.get();
+      final Map<int, Proizvod> jelaMap = {};
+      for (final j in (jelaResult.result ?? [])) {
         final id = j.proizvodId;
-        if (id != null && potrebniProizvodIds.contains(id)) {
-          proizvodMap[id] = j;
+        if (id != null && potrebniproizvodIds.contains(id)) {
+          jelaMap[id] = j;
         }
       }
 
-      for (final jid in potrebniProizvodIds) {
-        if (!proizvodMap.containsKey(jid)) {
+      for (final jid in potrebniproizvodIds) {
+        if (!jelaMap.containsKey(jid)) {
           debugPrint(
-              "Upozorenje: proizvodId=$jid nije pronađen u ProductProvider.get()");
+              "Upozorenje: jeloId=$jid nije pronađen u ProductProvider.get()");
         }
       }
 
       setState(() {
         _narudzbe = narudzbe;
         _stavkePoNarudzbi = stavkeMap;
-        _proizvodById = proizvodMap;
+        _proizvodById = jelaMap;
         _isLoading = false;
       });
     } catch (e) {
@@ -120,7 +121,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
     for (final s in stavke) {
       final jid = s.proizvodId;
       final j = (jid != null) ? _proizvodById[jid] : null;
-      nazivi.add(j?.nazivProizvoda ?? "Proizvod #${jid ?? '?'}");
+      nazivi.add(j?.nazivProizvoda ?? "Jelo #${jid ?? '?'}");
     }
 
     const maxPrikaza = 3;
@@ -143,7 +144,16 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+    onWillPop: () async {
+      // Preusmjeri na listu proizvoda
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => ProizvodScreen()),
+      );
+      return false; // sprječava default back
+    },
+    child:  Scaffold(
       appBar: AppBar(title: const Text("Historija mojih narudžbi")),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -220,11 +230,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                 return ListTile(
                                   leading: const Icon(Icons.fastfood_rounded),
                                   title:
-                                      Text(j?.nazivProizvoda ?? "Proizvod #${jid ?? '?'}"),
+                                      Text(j?.nazivProizvoda ?? "Jelo #${jid ?? '?'}"),
                                   subtitle:
-                                      Text("Količina: ${s.kolicina ?? 0}"),
+                                      Text("Količina: ${s.kolicinaProizvoda ?? 0}"),
                                   trailing: Text(
-                                    "${(s.cijena ?? ((s.cijena ?? 0) * (s.kolicina ?? 1))).toStringAsFixed(2)} KM",
+                                    "${(s.cijena ?? ((s.cijena ?? 0) * (s.kolicinaProizvoda ?? 1))).toStringAsFixed(2)} KM",
                                     style: const TextStyle(
                                         fontWeight: FontWeight.w600),
                                   ),
@@ -234,7 +244,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                     );
                   },
                 ),
-    );
+    ));
   }
 }
 

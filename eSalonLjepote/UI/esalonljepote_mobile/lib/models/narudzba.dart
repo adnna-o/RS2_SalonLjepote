@@ -19,8 +19,8 @@ class Narudzba {
       this.datumNarudzbe,
       this.kolicinaProizvoda,
       this.iznosNarudzbe,
-      this.korisnik = const [],
-      this.proizvod = const [],
+      this.korisnik,
+      this.proizvod,
       this.paymentId,
       this.stateMachine,
       this.statusNarudzbeId,
@@ -39,8 +39,8 @@ class Narudzba {
   String? stateMachine;
   int? statusNarudzbeId;
 
-  List<Korisnik> korisnik;
-  List<Proizvod> proizvod;
+  Korisnik? korisnik;
+  Proizvod? proizvod;
 
 
   factory Narudzba.fromJson(Map<String, dynamic> json) =>

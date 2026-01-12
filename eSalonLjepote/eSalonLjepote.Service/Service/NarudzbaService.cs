@@ -4,6 +4,7 @@ using eSalonLjepote.Model.Request;
 using eSalonLjepote.Model.Request.SearchRequest;
 using eSalonLjepote.Service.Database;
 using eSalonLjepote.Service.NarudzbaStateMachine;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -319,6 +320,18 @@ namespace eSalonLjepote.Service.Service
                 }
             });
         }
+        public async Task<List<Model.Models.Narudzba>> GetByKorisnik(int korisnikId)
+        {
+            var narudzbe = await _context.Narudzbas
+                .Include(n => n.Stavke)
+                .Include(n => n.Proizvod)
+                .Where(n => n.KorisnikId == korisnikId)
+                .OrderByDescending(n => n.DatumNarudzbe)
+                .ToListAsync();
+
+            return _mapper.Map<List<Model.Models.Narudzba>>(narudzbe);
+        }
+
 
 
 
@@ -331,14 +344,14 @@ namespace eSalonLjepote.Service.Service
 
          }*/
 
-       /* public override async Task<Model.Models.Narudzba> Update(int id, NarudzbaUpdateRequest update)
-        {
-            var entity = await _context.Narudzbas.FindAsync(id);
+        /* public override async Task<Model.Models.Narudzba> Update(int id, NarudzbaUpdateRequest update)
+         {
+             var entity = await _context.Narudzbas.FindAsync(id);
 
-            var state = _baseState.CreateState(entity.StateMachine);
+             var state = _baseState.CreateState(entity.StateMachine);
 
-            return await state.Update(id, update);
-        }*/
+             return await state.Update(id, update);
+         }*/
 
         public async Task<Model.Models.Narudzba> Activate(int id)
         {
