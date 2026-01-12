@@ -298,10 +298,15 @@ class _CartScreenState extends State<CartScreen> {
               (params['data']?['id'] ?? params['id'] ?? params['paymentId'])
                   ?.toString();
 
+          final totalKolicina = _korpa!.result
+              .map((x) => x.kolicinaProizvoda ?? 0)
+              .reduce((a, b) => a + b);
+
           final id = await _cartProvider.checkoutFromCart(
             Authorization.userId!,
             paymentId,
             datumNarudzbe: _selectedDate,
+            placanjeId: _selectedPlacanjeId,
           );
 
           if (!mounted) return;
@@ -356,6 +361,7 @@ class _CartScreenState extends State<CartScreen> {
         Authorization.userId!,
         null,
         datumNarudzbe: _selectedDate,
+        placanjeId: _selectedPlacanjeId,
       );
 
       if (!mounted) return;
@@ -498,15 +504,22 @@ class _CartScreenState extends State<CartScreen> {
                           rightButton: ElevatedButton.icon(
                             onPressed: canCheckout
                                 ? () {
-                                    if (_nacinPlacanja == "kes") {
-                                      _startCashCheckout();
+                                    if (_nacinPlacanja.toLowerCase() == "kes") {
+                                      _startCashCheckout(); 
+                                    } else if (_nacinPlacanja.toLowerCase() ==
+                                        "kartica") {
+                                      _startPaypalCheckout(); 
                                     } else {
-                                      _startPaypalCheckout();
+                                      _toast("Nepoznat način plaćanja.");
                                     }
                                   }
                                 : null,
                             icon: const Icon(Icons.send_rounded, size: 18),
-                            label: const Text("Pošalji zahtjev"),
+                            label: Text(
+                              _nacinPlacanja.toLowerCase() == "kes"
+                                  ? "Pošalji narudžbu"
+                                  : "Pošalji zahtjev",
+                            ),
                           ),
                         ),
                       ),

@@ -134,6 +134,14 @@ namespace eSalonLjepote.Service.Service
                         n.Proizvod != null && n.Proizvod.NazivProizvoda.Contains(search.SadrzajNarudzbe)
                     );
                 }
+                if (!string.IsNullOrWhiteSpace(search?.NazivStatusa))
+                {
+                    filteredQuery = filteredQuery.Where(x => x.StatusNarudzbe.Naziv == search.NazivStatusa);
+                }
+                if (search?.StatusNarudzbeId != null && search.StatusNarudzbeId > 0)
+                {
+                    filteredQuery = filteredQuery.Where(x => x.StatusNarudzbeId == search.StatusNarudzbeId);
+                }
             }
 
             return filteredQuery;
@@ -175,6 +183,9 @@ namespace eSalonLjepote.Service.Service
             entity.StateMachine ??= "initial";
             entity.StatusNarudzbeId = statusId;
             entity.ProizvodId = insert.ProizvodId;
+            entity.PlacanjeId = insert.PlacanjeId;
+            entity.KolicinaProizvoda = insert.KolicinaProizvoda;
+            entity.IznosNarudzbe = insert.IznosNarudzbe;
 
             _context.Narudzbas.Add(entity);
             _context.SaveChanges();
@@ -203,6 +214,7 @@ namespace eSalonLjepote.Service.Service
                         StatusNarudzbeId = req.StatusNarudzbeId ?? 1,
                         StateMachine = "Kreirana",
                         ProizvodId=req.Stavke.First().ProizvodId,
+                        PlacanjeId=req.PlacanjeId ?? 1,
                     };
 
                     _context.Narudzbas.Add(nar);
@@ -225,7 +237,7 @@ namespace eSalonLjepote.Service.Service
                             NarudzbaId = nar.NarudzbaId,
                             ProizvodId = s.ProizvodId,
                             KolicinaProizvoda = s.KolicinaProizvoda,
-                            Cijena = cijenaInt
+                            Cijena = cijenaInt,
                         });
                     }
 
@@ -244,7 +256,7 @@ namespace eSalonLjepote.Service.Service
             });
         }
 
-        public async Task<int> CheckoutFromCart(int korisnikId, int? statusId = null, string? paymentId = null, DateTime? datumNarudzbe = null)
+        public async Task<int> CheckoutFromCart(int korisnikId, int? statusId = null, string? paymentId = null, DateTime? datumNarudzbe = null, int? placanjeId=null)
         {
             var strategy = _context.Database.CreateExecutionStrategy();
 
@@ -284,6 +296,22 @@ namespace eSalonLjepote.Service.Service
                         StatusNarudzbeId = status.StatusNarudzbeId,
                         StateMachine = "Kreirana",
                         ProizvodId=stavkeKorpe.First().ProizvodId,
+                        KolicinaProizvoda = stavkeKorpe.Sum(k => k.KolicinaProizvoda ?? 1),
+                        IznosNarudzbe = stavkeKorpe.Sum(k =>
+                        {
+                            int kol = k.KolicinaProizvoda ?? 1;
+
+                            // Uzmi cijenu iz baze (uvijek tačna)
+                            var cijena = _context.Proizvods
+                                .Where(p => p.ProizvodId == k.ProizvodId)
+                                .Select(p => p.Cijena)
+                                .FirstOrDefault();
+
+                            int cijenaInt = (int)Math.Round((double)cijena);
+
+                            return cijenaInt * kol;
+                        }),
+
                         Stavke = stavkeKorpe.Select(k =>
                         {
                             var proizvodCijena = _context.Proizvods
@@ -300,7 +328,8 @@ namespace eSalonLjepote.Service.Service
                                 Cijena = cijenaInt
                             };
                         }).ToList(),
-                        PaymentId = paymentId
+                        PaymentId = paymentId,
+                        PlacanjeId=placanjeId,
 
                     };
 

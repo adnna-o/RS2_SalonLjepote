@@ -296,6 +296,54 @@ namespace eSaljonLjepote.Services.Database
                   });
             #endregion
 
+          /*  #region Dodavanje Narudzbi
+            modelBuilder.Entity<NarudzbaStavka>().HasData(
+                new NarudzbaStavka()
+                {
+                    NarudzbaStavkaId=1234,
+                    Cijena = 14,
+                    KolicinaProizvoda = 2,
+                    NarudzbaId = 3100,
+                    ProizvodId = 6010,
+                },
+                  new NarudzbaStavka()
+                  {
+                      NarudzbaStavkaId = 1235,
+                      Cijena = 14,
+                      KolicinaProizvoda = 2,
+                      NarudzbaId = 3200,
+                      ProizvodId = 6010,
+                  },
+                  new NarudzbaStavka()
+                  {
+                      NarudzbaStavkaId = 1236,
+                      Cijena = 14,
+                      KolicinaProizvoda = 2,
+                      NarudzbaId = 3300,
+                      ProizvodId = 6010,
+
+                  },
+                  new NarudzbaStavka()
+                  {
+                      NarudzbaStavkaId = 1237,
+                      Cijena = 14,
+                      KolicinaProizvoda = 2,
+                      NarudzbaId = 3400,
+                      ProizvodId = 6010,
+
+                  },
+                  new NarudzbaStavka()
+                  {
+                      NarudzbaStavkaId = 1238,
+                      Cijena = 14,
+                      KolicinaProizvoda = 2,
+                      NarudzbaId = 4411,
+                      ProizvodId = 6010,
+
+                  }
+                  );
+            #endregion*/
+
             #region Dodavanje Novosti
 
             modelBuilder.Entity<Novosti>().HasData(
@@ -758,8 +806,18 @@ namespace eSaljonLjepote.Services.Database
             modelBuilder.Entity<Status>().HasData(
                new Status()
                {
+                   StatusNarudzbeId = 8576,
+                   Naziv = "otkazano"
+               },
+                new Status()
+               {
                    StatusNarudzbeId = 8578,
                    Naziv = "poslano"
+               },
+               new Status()
+               {
+                   StatusNarudzbeId = 8579,
+                   Naziv = "kreirano"
                }
                );
 

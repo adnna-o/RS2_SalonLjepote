@@ -64,11 +64,11 @@ class _NarudzbaDetailsScreen extends State<NarudzbaDetailsScreen> {
     super.initState();
     _initialValue = {
       'narudzbaId': widget.narudzba?.narudzbaId,
-      'korisnikId': widget.narudzba?.narudzbaId,
+      'korisnikId': widget.narudzba?.korisnikId,
       'proizvodId': widget.narudzba?.proizvodId,
       'placanjeId': widget.narudzba?.placanjeId,
       'datumNarudzbe': widget.narudzba?.datumNarudzbe ?? todayFormatted,
-      'kolicinaProizvoda': widget.narudzba?.kolicinaProizvoda,
+      'kolicinaProizvoda': widget.narudzba?.kolicinaProizvoda.toString(),
       'iznosNarudzbe': widget.narudzba?.iznosNarudzbe,
     };
   }
@@ -147,55 +147,56 @@ class _NarudzbaDetailsScreen extends State<NarudzbaDetailsScreen> {
 
       final mutableFormData = Map<String, dynamic>.from(formData);
 
-      if (mutableFormData['korisnikId'] != null) {
-        mutableFormData['korisnikId'] =
-            int.tryParse(mutableFormData['korisnikId'] as String) ?? 0;
-      }
-      if (mutableFormData['placanjeId'] != null) {
-        mutableFormData['placanjeId'] =
-            int.tryParse(mutableFormData['placanjeId'] as String) ?? 0;
-      }
-      if (mutableFormData['proizvodId'] != null) {
-        mutableFormData['proizvodId'] =
-            int.tryParse(mutableFormData['proizvodId'] as String) ?? 0;
+      // --- PARSIRANJE FK POLJA ---
+      mutableFormData['korisnikId'] =
+          int.tryParse(mutableFormData['korisnikId'].toString());
+
+      mutableFormData['placanjeId'] =
+          int.tryParse(mutableFormData['placanjeId'].toString());
+
+      mutableFormData['proizvodId'] =
+          int.tryParse(mutableFormData['proizvodId'].toString());
+
+      // --- KOLICINA ---
+      var kolicinaStr = mutableFormData['kolicinaProizvoda']?.toString().trim();
+
+      if (kolicinaStr == null || kolicinaStr.isEmpty) {
+        mutableFormData['kolicinaProizvoda'] = null;
+      } else {
+        mutableFormData['kolicinaProizvoda'] = int.tryParse(kolicinaStr);
       }
 
-      if (mutableFormData['kolicinaProizvoda'] != null) {
-        mutableFormData['kolicinaProizvoda'] =
-            int.tryParse(mutableFormData['kolicinaProizvoda'].toString()) ?? 0;
-      }
+      // --- CIJENA PROIZVODA ---
+      var iznosStr = mutableFormData['iznosNarudzbe']?.toString().trim();
 
-      if (mutableFormData['iznosNarudzbe'] != null) {
-        mutableFormData['iznosNarudzbe'] = double.tryParse(
-                mutableFormData['iznosNarudzbe']
-                    .toString()
-                    .replaceAll(',', '.')) ??
-            0.0;
-      }
+      double? cijena = double.tryParse(iznosStr?.replaceAll(',', '.') ?? '');
 
-      mutableFormData['iznosNarudzbe'] =
-          (mutableFormData['kolicinaProizvoda'] as int) *
-              (mutableFormData['iznosNarudzbe'] as double);
+      mutableFormData['iznosNarudzbe'] = cijena;
+
+      // --- TOTAL ---
+      if (mutableFormData['kolicinaProizvoda'] != null &&
+          cijena != null &&
+          mutableFormData['kolicinaProizvoda'] > 0) {
+        mutableFormData['iznosNarudzbe'] =
+            cijena * mutableFormData['kolicinaProizvoda'];
+      }
 
       try {
         if (widget.narudzba == null) {
           await _narudzbaProvider.insert(Narudzba.fromJson(mutableFormData));
-          _showSuccessMessage('Appointment successfully added!');
+          _showSuccessMessage('Narudžba uspješno dodana!');
         } else {
           await _narudzbaProvider.update(
               widget.narudzba!.narudzbaId!, Narudzba.fromJson(mutableFormData));
-          _showSuccessMessage('Appointment successfully updated!');
+          _showSuccessMessage('Narudžba uspješno ažurirana!');
         }
 
-        if (widget.onDataChanged != null) {
-          widget.onDataChanged!();
-        }
-
+        widget.onDataChanged?.call();
         Navigator.of(context).pop();
       } catch (e) {
         print('Error: $e');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save the term. Please try again.')),
+          SnackBar(content: Text('Greška prilikom spremanja narudžbe.')),
         );
       }
     }
@@ -426,34 +427,31 @@ class _NarudzbaDetailsScreen extends State<NarudzbaDetailsScreen> {
                   child: Row(
                     children: [
                       Expanded(
-                        child: FormBuilderTextField(
-                          name: "kolicinaProizvoda",
-                          decoration: InputDecoration(
-                            labelText: "Količina",
-                            labelStyle:
-                                const TextStyle(color: Colors.orangeAccent),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide:
-                                  const BorderSide(color: Colors.orangeAccent),
-                            ),
-                          ),
-                          keyboardType: TextInputType.number,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Količina je obavezna.';
-                            }
-                            final parsed = int.tryParse(value);
-                            if (parsed == null) {
-                              return 'Unesite ispravan cijeli broj.';
-                            }
-                            if (parsed <= 0) {
-                              return 'Količina mora biti veća od 0.';
-                            }
-                            return null;
-                          },
+                          child: FormBuilderTextField(
+                        name: 'kolicinaProizvoda',
+                        initialValue:
+                            widget.narudzba?.kolicinaProizvoda?.toString() ??
+                                '',
+                        decoration: const InputDecoration(
+                          labelText: 'Količina proizvoda',
+                          hintText: 'Unesite količinu',
+                          border: OutlineInputBorder(),
                         ),
-                      ),
+                        keyboardType: TextInputType.number,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Količina je obavezna.';
+                          }
+                          final parsed = int.tryParse(value);
+                          if (parsed == null) {
+                            return 'Unesite ispravan broj.';
+                          }
+                          if (parsed <= 0) {
+                            return 'Količina mora biti veća od 0.';
+                          }
+                          return null;
+                        },
+                      )),
                     ],
                   ),
                 ),

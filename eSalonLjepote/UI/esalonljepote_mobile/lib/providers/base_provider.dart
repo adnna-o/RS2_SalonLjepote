@@ -358,6 +358,10 @@ abstract class BaseProvider<T> with ChangeNotifier {
     String? paymentId, {
     int? statusId,
     DateTime? datumNarudzbe,
+<<<<<<< HEAD
+=======
+    int? placanjeId,
+>>>>>>> b2c5380df42d98abaa1d43c2a6fdfa1a82d9b070
   }) async {
     final uri = Uri.parse('${_baseUrl}Narudzba/checkoutFromCart');
     final headers = createHeaders();
@@ -368,6 +372,10 @@ abstract class BaseProvider<T> with ChangeNotifier {
       if (statusId != null) "statusId": statusId,
       if (datumNarudzbe != null)
         "datumNarudzbe": datumNarudzbe.toIso8601String(),
+<<<<<<< HEAD
+=======
+      "placanjeId":placanjeId,
+>>>>>>> b2c5380df42d98abaa1d43c2a6fdfa1a82d9b070
     };
 
     final resp = await http.post(

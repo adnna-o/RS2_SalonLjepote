@@ -89,7 +89,7 @@ class _MasterScreenWidgetState extends State<MasterScreenWidget> {
         children: [
           Row(
             children: [
-              Icon(Icons.local_hospital,
+              Icon(Icons.spa,
                   color:Color.fromARGB(255, 173, 160, 117)),
               SizedBox(width: 8.0),
               Text(

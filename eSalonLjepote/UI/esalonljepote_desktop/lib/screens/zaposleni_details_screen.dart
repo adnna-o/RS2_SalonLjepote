@@ -40,7 +40,9 @@ class _ZaposleniDetailsScreen extends State<ZaposleniDetailsScreen> {
       'korisnikId': widget.zaposleni?.korisnikId,
       'zaposleniId': widget.zaposleni?.zaposleniId,
       'zanimanje': widget.zaposleni?.zanimanje,
-      'datumZaposlenja': widget.zaposleni?.datumZaposlenja,
+      'datumZaposlenja': widget.zaposleni?.datumZaposlenja != null
+          ? DateFormat('dd.MM.yyyy').format(widget.zaposleni!.datumZaposlenja!)
+          : '',
     };
   }
 
