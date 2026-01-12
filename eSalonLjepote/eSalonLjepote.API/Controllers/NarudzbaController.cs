@@ -92,12 +92,6 @@ namespace eSalonLjepote.API.Controllers
             return await _service.AllowedActions(id);
         }
 
-        [HttpGet("korisnik/{korisnikId}")]
-        public async Task<IActionResult> GetByKorisnik(int korisnikId)
-        {
-            var result = await _service.GetByKorisnik(korisnikId);
-            return Ok(result);
-        }
 
     }
 }

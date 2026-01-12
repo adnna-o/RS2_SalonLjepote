@@ -31,7 +31,6 @@ class _ZaposleniDetailsScreen extends State<ZaposleniDetailsScreen> {
   late Map<String, dynamic> _initialValue;
   String? _selectedKorisniciId;
   bool isLoading = false;
-  bool _hasUnsavedChanges = false;
 
   @override
   void initState() {
@@ -40,9 +39,7 @@ class _ZaposleniDetailsScreen extends State<ZaposleniDetailsScreen> {
       'korisnikId': widget.zaposleni?.korisnikId,
       'zaposleniId': widget.zaposleni?.zaposleniId,
       'zanimanje': widget.zaposleni?.zanimanje,
-      'datumZaposlenja': widget.zaposleni?.datumZaposlenja != null
-          ? DateFormat('dd.MM.yyyy').format(widget.zaposleni!.datumZaposlenja!)
-          : '',
+      'datumZaposlenja': widget.zaposleni?.datumZaposlenja,
     };
   }
 
@@ -114,31 +111,6 @@ class _ZaposleniDetailsScreen extends State<ZaposleniDetailsScreen> {
     );
   }
 
-  Future<bool> _confirmDiscardIfNeeded() async {
-    if (!_hasUnsavedChanges) return true;
-
-    final discard = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Odbaciti promjene?"),
-        content: const Text(
-            "Napravili ste izmjene koje nisu spašene. Želite li odustati i odbaciti promjene?"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text("Nastavi uređivanje"),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text("Odbaci"),
-          ),
-        ],
-      ),
-    );
-
-    return discard ?? false;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -165,8 +137,7 @@ class _ZaposleniDetailsScreen extends State<ZaposleniDetailsScreen> {
                           value: korisnik.korisnikId.toString(),
                           child: Text("${korisnik.ime} ${korisnik.prezime}"),
                         );
-                      }).toList() ??
-                      [],
+                      }).toList() ?? [],
                   initialValue: _initialValue['korisnikId']?.toString(),
                   onChanged: (value) {
                     setState(() {
@@ -202,40 +173,12 @@ class _ZaposleniDetailsScreen extends State<ZaposleniDetailsScreen> {
                   ),
                   format: DateFormat('yyyy-MM-dd'),
                   initialValue: widget.zaposleni?.datumZaposlenja,
-                  enabled: widget.zaposleni == null,
+                  enabled: widget.zaposleni == null,  // Ako je zaposleni null, polje je editabilno
                 ),
                 SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: OutlinedButton(
-                        onPressed: () async {
-                          final canLeave = await _confirmDiscardIfNeeded();
-                          if (canLeave) Navigator.of(context).pop(false);
-                        },
-                        child: const Text("Odustani"),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orangeAccent,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 32, vertical: 12),
-                          textStyle: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12)),
-                        ),
-                        onPressed: _submitForm,
-                        child:
-                            Text(widget.zaposleni == null ? 'Dodaj' : 'Spasi'),
-                      ),
-                    ),
-                  ],
+                ElevatedButton(
+                  onPressed: _submitForm,
+                  child: Text(widget.zaposleni == null ? 'Dodaj' : 'Spremi'),
                 ),
               ],
             ),

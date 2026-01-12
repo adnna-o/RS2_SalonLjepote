@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
-
+ 
 import 'package:esalonljepote_mobile/models/placanje.dart';
 import 'package:esalonljepote_mobile/models/proizvod.dart';
 import 'package:esalonljepote_mobile/models/search_result.dart';
@@ -15,28 +15,28 @@ import 'package:esalonljepote_mobile/widget/master_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_paypal_payment/flutter_paypal_payment.dart';
 import 'package:provider/provider.dart';
-
+ 
 import '../models/korpa.dart';
-
+ 
 class CartScreen extends StatefulWidget {
   @override
   _CartScreenState createState() => _CartScreenState();
 }
-
+ 
 class _CartScreenState extends State<CartScreen> {
   late CartProvider _cartProvider;
   late ProizvodProvider _proizvodProvider;
   late PlacanjeProvider _placanjeProvider;
-
+ 
   SearchResult<Korpa>? _korpa;
   SearchResult<Placanje>? _placanje;
-
+ 
   bool _isLoading = true;
   DateTime? _selectedDate;
   int? _selectedPlacanjeId;
-
+ 
   String _nacinPlacanja = "gotovina";
-
+ 
   static const String PAYPAL_CLIENT_ID =
       "AUWw046WAjBPE3PeyhJgXy_zaz1GhcZmkZ_lFyvnaz4cL-eqF1WbDamEv-Ax62oj2aSc1mNN-y-IXlpv";
   static const String PAYPAL_SECRET_KEY =
@@ -45,34 +45,33 @@ class _CartScreenState extends State<CartScreen> {
   static const String PAYPAL_CURRENCY = "EUR";
   static const double BAM_PER_EUR = 1.95583;
   static const double EUR_PER_BAM = 1 / BAM_PER_EUR;
-
+ 
   @override
   void initState() {
     super.initState();
     _cartProvider = context.read<CartProvider>();
     _proizvodProvider = context.read<ProizvodProvider>();
     _placanjeProvider = context.read<PlacanjeProvider>();
-
+ 
     _loadData();
   }
-
+ 
   Future<void> _loadData() async {
     try {
       await _proizvodProvider.fetchAll();
-
+ 
       final data = await _cartProvider.get();
       final placanja = await _placanjeProvider.get();
-
+ 
       for (final item in data.result) {
         item.proizvod ??= _proizvodProvider.items.firstWhere(
           (p) => p.proizvodId == item.proizvodId,
           orElse: () =>
               Proizvod(nazivProizvoda: "Nepoznat proizvod", cijena: 0),
         );
-        item.kolicinaProizvoda ??= 1;
       }
       await _fetchInitialData();
-
+ 
       setState(() {
         _korpa = data;
         _placanje = placanja;
@@ -84,7 +83,7 @@ class _CartScreenState extends State<CartScreen> {
       _toast('Greška pri učitavanju podataka.');
     }
   }
-
+ 
   /*  Future<void> _loadData() async {
     try {
       await _proizvodProvider.fetchAll();
@@ -95,7 +94,7 @@ class _CartScreenState extends State<CartScreen> {
       _toast('Greška pri učitavanju podataka.');
     }
   }*/
-
+ 
   Future<void> _fetchInitialData() async {
     try {
       final data = await _cartProvider.get();
@@ -109,13 +108,13 @@ class _CartScreenState extends State<CartScreen> {
       _toast('Greška pri dohvatu korpe.');
     }
   }
-
+ 
   void _toast(String message) {
     if (!mounted) return;
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));
   }
-
+ 
   String _formatDatum(DateTime? dt) {
     if (dt == null) return "Odaberite datum i vrijeme dostave";
     final d = dt.day.toString().padLeft(2, '0');
@@ -125,11 +124,11 @@ class _CartScreenState extends State<CartScreen> {
     final mm = dt.minute.toString().padLeft(2, '0');
     return "$d.$m.$y $hh:$mm";
   }
-
+ 
   Future<void> _pickDate() async {
     final now = DateTime.now();
     final initial = _selectedDate ?? now.add(const Duration(hours: 1));
-
+ 
     final pickedDate = await showDatePicker(
       context: context,
       initialDate: initial,
@@ -137,15 +136,15 @@ class _CartScreenState extends State<CartScreen> {
       lastDate: now.add(const Duration(days: 60)),
       helpText: 'Izaberite datum isporuke',
     );
-
+ 
     if (pickedDate == null) return;
-
+ 
     final pickedTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.fromDateTime(initial),
       helpText: 'Izaberite vrijeme',
     );
-
+ 
     final withTime = pickedTime != null
         ? DateTime(
             pickedDate.year,
@@ -155,10 +154,10 @@ class _CartScreenState extends State<CartScreen> {
             pickedTime.minute,
           )
         : DateTime(pickedDate.year, pickedDate.month, pickedDate.day, 12, 0);
-
+ 
     setState(() => _selectedDate = withTime);
   }
-
+ 
   double _calcSubtotalBAM() {
     if (_korpa == null) return 0;
     double sum = 0;
@@ -169,10 +168,10 @@ class _CartScreenState extends State<CartScreen> {
     }
     return sum;
   }
-
+ 
   String _to2(double v) => v.toStringAsFixed(2);
   String _bamToEurStr(double bam) => _to2(bam * EUR_PER_BAM);
-
+ 
   /* Future<bool> _guardDateSelected() async {
     if (_selectedDate != null) return true;
     await showDialog<void>(
@@ -192,24 +191,24 @@ class _CartScreenState extends State<CartScreen> {
   }*/
   int _eurCentsFromBAM(double bam) => ((bam * EUR_PER_BAM) * 100).round();
   String _eurStrFromCents(int cents) => _to2(cents / 100.0);
-
+ 
   List<Map<String, dynamic>> _buildPaypalTransactions() {
     final subtotalBAM = _calcSubtotalBAM();
     if (subtotalBAM <= 0) {
       throw Exception('Korpa je prazna ili iznosi nisu postavljeni.');
     }
-
+ 
     int subtotalEurCents = 0;
-
+ 
     final items = _korpa!.result.map((item) {
       final proizvod = _proizvodProvider.items
           .firstWhere((x) => x.proizvodId == item.proizvodId);
       final int qty = (item.kolicinaProizvoda ?? 0);
       final double unitBAM = (item.cijena ?? 0);
-
+ 
       final unitEurCents = _eurCentsFromBAM(unitBAM);
       subtotalEurCents += unitEurCents * qty;
-
+ 
       return {
         "name": proizvod.nazivProizvoda ?? "Nepoznato proizvod",
         "quantity": qty,
@@ -217,17 +216,17 @@ class _CartScreenState extends State<CartScreen> {
         "currency": PAYPAL_CURRENCY
       };
     }).toList();
-
+ 
     final int shippingEurCents = 0;
     final int discountCents = 0;
-
+ 
     final int totalEurCents =
         subtotalEurCents + shippingEurCents - discountCents;
-
+ 
     final subtotalStr = _eurStrFromCents(subtotalEurCents);
     final shippingStr = _eurStrFromCents(shippingEurCents);
     final totalStr = _eurStrFromCents(totalEurCents);
-
+ 
     return [
       {
         "amount": {
@@ -246,7 +245,7 @@ class _CartScreenState extends State<CartScreen> {
       }
     ];
   }
-
+ 
   Future<bool> _guardDateSelected() async {
     if (_selectedDate != null) return true;
     await showDialog<void>(
@@ -264,20 +263,20 @@ class _CartScreenState extends State<CartScreen> {
     );
     return false;
   }
-
+ 
   Future<void> _startPaypalCheckout() async {
     if (_korpa == null || _korpa!.result.isEmpty) {
       _toast('Korpa je prazna.');
       return;
     }
     if (!await _guardDateSelected()) return;
-
+ 
     final subtotalBAM = _calcSubtotalBAM();
     if (subtotalBAM <= 0) {
       _toast('Ukupno je 0. Dodaj artikle ili postavi cijene.');
       return;
     }
-
+ 
     late final List<Map<String, dynamic>> transactions;
     try {
       transactions = _buildPaypalTransactions();
@@ -285,7 +284,7 @@ class _CartScreenState extends State<CartScreen> {
       _toast(e.toString());
       return;
     }
-
+ 
     Navigator.of(context).push(MaterialPageRoute(
       builder: (BuildContext context) => PaypalCheckoutView(
         sandboxMode: PAYPAL_SANDBOX,
@@ -297,18 +296,18 @@ class _CartScreenState extends State<CartScreen> {
           final paymentId =
               (params['data']?['id'] ?? params['id'] ?? params['paymentId'])
                   ?.toString();
-
+ 
           final totalKolicina = _korpa!.result
               .map((x) => x.kolicinaProizvoda ?? 0)
               .reduce((a, b) => a + b);
-
+ 
           final id = await _cartProvider.checkoutFromCart(
             Authorization.userId!,
             paymentId,
             datumNarudzbe: _selectedDate,
             placanjeId: _selectedPlacanjeId,
           );
-
+ 
           if (!mounted) return;
           _toast('Narudžba #$id kreirana!');
           Navigator.pushReplacement(
@@ -329,14 +328,14 @@ class _CartScreenState extends State<CartScreen> {
       ),
     ));
   }
-
+ 
   Future<void> _startCashCheckout() async {
     if (_korpa == null || _korpa!.result.isEmpty) {
       _toast('Korpa je prazna.');
       return;
     }
     if (!await _guardDateSelected()) return;
-
+ 
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -353,9 +352,9 @@ class _CartScreenState extends State<CartScreen> {
         ],
       ),
     );
-
+ 
     if (confirm != true) return;
-
+ 
     try {
       final id = await _cartProvider.checkoutFromCart(
         Authorization.userId!,
@@ -363,7 +362,7 @@ class _CartScreenState extends State<CartScreen> {
         datumNarudzbe: _selectedDate,
         placanjeId: _selectedPlacanjeId,
       );
-
+ 
       if (!mounted) return;
       _toast('Narudžba #$id kreirana (gotovina).');
       Navigator.pushReplacement(
@@ -374,14 +373,14 @@ class _CartScreenState extends State<CartScreen> {
       _toast('Greška pri kreiranju narudžbe: $e');
     }
   }
-
+ 
   @override
   Widget build(BuildContext context) {
     final subtotalBAM = _calcSubtotalBAM();
     final subtotalEUR = _bamToEurStr(subtotalBAM);
     final canCheckout =
         !_isLoading && _korpa != null && _korpa!.result.isNotEmpty;
-
+ 
     return WillPopScope(
       onWillPop: () async => false,
       child: MasterScreenWidget(
@@ -505,10 +504,10 @@ class _CartScreenState extends State<CartScreen> {
                             onPressed: canCheckout
                                 ? () {
                                     if (_nacinPlacanja.toLowerCase() == "kes") {
-                                      _startCashCheckout(); 
+                                      _startCashCheckout();
                                     } else if (_nacinPlacanja.toLowerCase() ==
                                         "kartica") {
-                                      _startPaypalCheckout(); 
+                                      _startPaypalCheckout();
                                     } else {
                                       _toast("Nepoznat način plaćanja.");
                                     }
@@ -534,7 +533,7 @@ class _CartScreenState extends State<CartScreen> {
                             final proizvod = item.proizvod!;
                             final qty = item.kolicinaProizvoda ?? 0;
                             final lineTotal = (proizvod.cijena ?? 0) * qty;
-
+ 
                             return _CartLine(
                               title:
                                   proizvod.nazivProizvoda ?? "Nepoznato jelo",
@@ -559,12 +558,12 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 }
-
+ 
 class _DateChip extends StatelessWidget {
   final String label;
   final VoidCallback? onTap;
   const _DateChip({required this.label, this.onTap});
-
+ 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -598,7 +597,7 @@ class _DateChip extends StatelessWidget {
     );
   }
 }
-
+ 
 class _DetailRowData {
   final IconData icon;
   final String title;
@@ -609,18 +608,18 @@ class _DetailRowData {
     required this.subtitle,
   });
 }
-
+ 
 class _DetailsCard extends StatelessWidget {
   final List<_DetailRowData> rows;
   final Widget leftButton;
   final Widget rightButton;
-
+ 
   const _DetailsCard({
     required this.rows,
     required this.leftButton,
     required this.rightButton,
   });
-
+ 
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -664,14 +663,14 @@ class _DetailsCard extends StatelessWidget {
     );
   }
 }
-
+ 
 class _CartLine extends StatelessWidget {
   final String title;
   final String subtitle;
   final String trailing;
   final Uint8List? imageBytes;
   final VoidCallback onDelete;
-
+ 
   const _CartLine({
     required this.title,
     required this.subtitle,
@@ -679,7 +678,7 @@ class _CartLine extends StatelessWidget {
     required this.onDelete,
     this.imageBytes,
   });
-
+ 
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -731,18 +730,18 @@ class _CartLine extends StatelessWidget {
     );
   }
 }
-
+ 
 class _RecommendationBanner extends StatelessWidget {
   final String text;
   final String actionText;
   final VoidCallback onPressed;
-
+ 
   const _RecommendationBanner({
     required this.text,
     required this.actionText,
     required this.onPressed,
   });
-
+ 
   @override
   Widget build(BuildContext context) {
     return Container(

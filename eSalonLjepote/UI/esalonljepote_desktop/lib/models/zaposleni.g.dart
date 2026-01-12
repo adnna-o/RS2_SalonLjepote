@@ -8,12 +8,12 @@ part of 'zaposleni.dart';
 
 Zaposleni _$ZaposleniFromJson(Map<String, dynamic> json) => Zaposleni(
       zaposleniId: (json['zaposleniId'] as num?)?.toInt(),
-      /*datumZaposlenja: json['datumZaposlenja'] != null
+      datumZaposlenja: json['datumZaposlenja'] != null
           ? DateTime.parse(json['datumZaposlenja'] as String)
-          : null,*/
-      datumZaposlenja: json['datumZaposlenja'] == null
+          : null,
+      /*datumZaposlenja: json['datumZaposlenja'] == null
           ? null
-          : DateTime.parse(json['datumZaposlenja'] as String),
+          : DateTime.parse(json['datumZaposlenja'] as String),*/
       zanimanje: json['zanimanje'] as String?,
       korisnikId: (json['korisnikId'] as num?)?.toInt(),
     );

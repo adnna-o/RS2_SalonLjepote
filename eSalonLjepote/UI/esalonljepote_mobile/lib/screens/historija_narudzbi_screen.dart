@@ -74,11 +74,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
  
       final Map<int, List<NarudzbaStavka>> stavkeMap = {};
       final Set<int> potrebniproizvodIds = {};
-<<<<<<< HEAD
-
-=======
  
->>>>>>> b2c5380df42d98abaa1d43c2a6fdfa1a82d9b070
       for (final s in (stavkeResult.result ?? [])) {
         final nid = s.narudzbaId;
         if (nid == null || !idsNarudzbi.contains(nid)) continue;
@@ -86,11 +82,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
         (stavkeMap[nid] ??= []).add(s);
         if (s.proizvodId != null) potrebniproizvodIds.add(s.proizvodId!);
       }
-<<<<<<< HEAD
-
-=======
  
->>>>>>> b2c5380df42d98abaa1d43c2a6fdfa1a82d9b070
       final jelaResult = await productProvider.get();
       final Map<int, Proizvod> jelaMap = {};
       for (final j in (jelaResult.result ?? [])) {
@@ -99,11 +91,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
           jelaMap[id] = j;
         }
       }
-<<<<<<< HEAD
-
-=======
  
->>>>>>> b2c5380df42d98abaa1d43c2a6fdfa1a82d9b070
       for (final jid in potrebniproizvodIds) {
         if (!jelaMap.containsKey(jid)) {
           debugPrint(
@@ -158,19 +146,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
   Widget build(BuildContext context) {
     return WillPopScope(
     onWillPop: () async {
-<<<<<<< HEAD
-      // Preusmjeri na listu proizvoda
-=======
->>>>>>> b2c5380df42d98abaa1d43c2a6fdfa1a82d9b070
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => ProizvodScreen()),
       );
-<<<<<<< HEAD
-      return false; // sprječava default back
-=======
-      return false; 
->>>>>>> b2c5380df42d98abaa1d43c2a6fdfa1a82d9b070
+      return false;
     },
     child:  Scaffold(
       appBar: AppBar(title: const Text("Historija mojih narudžbi")),

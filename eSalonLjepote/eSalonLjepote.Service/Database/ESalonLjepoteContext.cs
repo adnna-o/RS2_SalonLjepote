@@ -314,7 +314,7 @@ public partial class ESalonLjepoteContext : DbContext
 
             entity.HasOne(d => d.Korisnik).WithMany(p => p.Zaposlenis)
                 .HasForeignKey(d => d.KorisnikId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.NoAction)
                 .HasConstraintName("FK_Korisnik_Zaposleni");
         });
 

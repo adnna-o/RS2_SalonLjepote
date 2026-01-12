@@ -13,8 +13,11 @@ class KlijentiDetailsScreen extends StatefulWidget {
   final Klijenti? klijenti;
   final Function? onDataChanged;
 
-  KlijentiDetailsScreen({Key? key, this.klijenti, this.onDataChanged})
-      : super(key: key);
+  const KlijentiDetailsScreen({
+    Key? key,
+    this.klijenti,
+    this.onDataChanged,
+  }) : super(key: key);
 
   @override
   State<KlijentiDetailsScreen> createState() => _KlijentiDetailsScreenState();
@@ -22,11 +25,15 @@ class KlijentiDetailsScreen extends StatefulWidget {
 
 class _KlijentiDetailsScreenState extends State<KlijentiDetailsScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
+
   late KorisnikProvider _korisnikProvider;
-  Korisnik? _korisnik; // Za uređivanje postojećeg klijenta
-  SearchResult<Korisnik>? _korisniciResult; // Za dropdown kod dodavanja
-  Korisnik? _selectedKorisnik; // Odabrani korisnik kod dodavanja
+
+  Korisnik? _korisnik;
+  SearchResult<Korisnik>? _korisniciResult;
+  Korisnik? _selectedKorisnik;
+
   bool _hasUnsavedChanges = false;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -43,15 +50,8 @@ class _KlijentiDetailsScreenState extends State<KlijentiDetailsScreen> {
           _korisnik = result;
         });
       } catch (e) {
-        print('Error loading korisnik: $e');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to load client data.'),
-            backgroundColor: Colors.red[400],
-          ),
-        );
+        _showError('Failed to load client data.');
       }
-      
     } else {
       try {
         final result = await _korisnikProvider.get();
@@ -59,101 +59,69 @@ class _KlijentiDetailsScreenState extends State<KlijentiDetailsScreen> {
           _korisniciResult = result;
         });
       } catch (e) {
-        print('Error loading korisnici: $e');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to load users.'),
-            backgroundColor: Colors.red[400],
-          ),
-        );
+        _showError('Failed to load users.');
       }
     }
   }
 
   Future<void> _submitForm() async {
+    if (!_formKey.currentState!.saveAndValidate()) return;
+
     final formData = _formKey.currentState!.value;
 
+    /// ============================
+    /// UREĐIVANJE POSTOJEĆEG KLIJENTA
+    /// ============================
     if (widget.klijenti != null && _korisnik != null) {
-      // Uređivanje postojećeg klijenta – ostaje kao prije
-      if (_formKey.currentState!.saveAndValidate()) {
-        final korisnikZaSpremanje = Korisnik(
-          korisnikId: _korisnik!.korisnikId,
-          ime: formData['ime'],
-          prezime: formData['prezime'],
-          email: formData['email'],
-          telefon: formData['telefon'],
-          korisnickoIme: _korisnik!.korisnickoIme != null
-              ? formData['ime'] + formData['prezime']
-              : _korisnik!.korisnickoIme,
+      final korisnikZaSpremanje = Korisnik(
+        korisnikId: _korisnik!.korisnikId,
+        ime: formData['ime'],
+        prezime: formData['prezime'],
+        email: formData['email'],
+        telefon: formData['telefon'],
+        korisnickoIme:
+            _korisnik!.korisnickoIme, // 🔒 OSTAVLJA SE ISTO
+      );
+
+      try {
+        await _korisnikProvider.update(
+          korisnikZaSpremanje.korisnikId!,
+          korisnikZaSpremanje,
         );
 
-        try {
-          await _korisnikProvider.update(
-              korisnikZaSpremanje.korisnikId!, korisnikZaSpremanje);
+        widget.onDataChanged?.call();
 
-          if (widget.onDataChanged != null) widget.onDataChanged!();
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Client updated successfully!'),
-              backgroundColor: Colors.green[400],
-            ),
-          );
-
-          Navigator.of(context).pop(true);
-
-        } catch (e) {
-          print('Error saving korisnik: $e');
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Failed to save client. Please try again.'),
-              backgroundColor: Colors.red[400],
-            ),
-          );
-        }
-      }
-    } else {
-      // Dodavanje novog klijenta – koristi dropdown za korisnika
-      if (_selectedKorisnik == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Morate odabrati korisnika'),
-            backgroundColor: Colors.red[400],
-          ),
-        );
-        return;
+        _showSuccess('Client updated successfully!');
+        Navigator.of(context).pop(true);
+      } catch (e) {
+        _showError('Failed to save client.');
       }
 
-      if (_formKey.currentState!.saveAndValidate()) {
-        final klijentZaSpremanje = Klijenti(
-          korisnikId: _selectedKorisnik!.korisnikId,
-        );
+      return;
+    }
 
-        try {
-          final klijentiProvider = context.read<KlijentiProvider>();
-          await klijentiProvider.insert(klijentZaSpremanje);
+    /// ============================
+    /// DODAVANJE NOVOG KLIJENTA
+    /// ============================
+    if (_selectedKorisnik == null) {
+      _showError('Morate odabrati korisnika');
+      return;
+    }
 
-          if (widget.onDataChanged != null) widget.onDataChanged!();
+    final klijentZaSpremanje = Klijenti(
+      korisnikId: _selectedKorisnik!.korisnikId,
+    );
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Klijent uspješno dodan!'),
-              backgroundColor: Colors.green[400],
-            ),
-          );
+    try {
+      final klijentiProvider = context.read<KlijentiProvider>();
+      await klijentiProvider.insert(klijentZaSpremanje);
 
-          Navigator.of(context).pop(true);
+      widget.onDataChanged?.call();
 
-        } catch (e) {
-          print('Error saving klijent: $e');
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Greška prilikom dodavanja klijenta.'),
-              backgroundColor: Colors.red[400],
-            ),
-          );
-        }
-      }
+      _showSuccess('Klijent uspješno dodan!');
+      Navigator.of(context).pop(true);
+    } catch (e) {
+      _showError('Greška prilikom dodavanja klijenta.');
     }
   }
 
@@ -162,17 +130,18 @@ class _KlijentiDetailsScreenState extends State<KlijentiDetailsScreen> {
 
     final discard = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (_) => AlertDialog(
         title: const Text("Odbaciti promjene?"),
         content: const Text(
-            "Napravili ste izmjene koje nisu spašene. Želite li odustati i odbaciti promjene?"),
+          "Napravili ste izmjene koje nisu spašene. Želite li odustati?",
+        ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
+            onPressed: () => Navigator.pop(context, false),
             child: const Text("Nastavi uređivanje"),
           ),
           ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(true),
+            onPressed: () => Navigator.pop(context, true),
             child: const Text("Odbaci"),
           ),
         ],
@@ -180,6 +149,18 @@ class _KlijentiDetailsScreenState extends State<KlijentiDetailsScreen> {
     );
 
     return discard ?? false;
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.red[400]),
+    );
+  }
+
+  void _showSuccess(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.green[400]),
+    );
   }
 
   @override
@@ -191,10 +172,11 @@ class _KlijentiDetailsScreenState extends State<KlijentiDetailsScreen> {
           ? "Uredi klijenta: ${_korisnik!.ime} ${_korisnik!.prezime}"
           : "Dodaj klijenta",
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: SingleChildScrollView(
           child: FormBuilder(
             key: _formKey,
+            onChanged: () => _hasUnsavedChanges = true,
             initialValue: isEditing
                 ? {
                     'ime': _korisnik!.ime,
@@ -207,112 +189,120 @@ class _KlijentiDetailsScreenState extends State<KlijentiDetailsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (isEditing) ...[
-                  // Polja za uređivanje kao prije
-                  FormBuilderTextField(
-                    name: 'ime',
-                    decoration: InputDecoration(labelText: 'Ime'),
-                    validator: (v) =>
-                        v == null || v.isEmpty ? 'Required' : null,
-                  ),
-                  SizedBox(height: 8),
-                  FormBuilderTextField(
-                    name: 'prezime',
-                    decoration: InputDecoration(labelText: 'Prezime'),
-                    validator: (v) =>
-                        v == null || v.isEmpty ? 'Required' : null,
-                  ),
-                  SizedBox(height: 8),
-                  FormBuilderTextField(
-                    name: 'telefon',
-                    decoration: InputDecoration(labelText: 'Telefon'),
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly, // samo brojevi
-                      LengthLimitingTextInputFormatter(
-                          9), // maksimalno 9 cifara
-                    ],
-                    validator: (v) {
-                      if (v == null || v.isEmpty) return 'Required';
-                      final regex = RegExp(r'^\d{9}$'); // tačno 9 cifara
-                      if (!regex.hasMatch(v))
-                        return 'Telefon mora imati 9 cifara';
-                      return null;
-                    },
-                  ),
-
-                  SizedBox(height: 8),
-                  FormBuilderTextField(
-                    name: 'email',
-                    decoration: InputDecoration(labelText: 'Email'),
-                    validator: (v) {
-                      if (v != null && v.isNotEmpty) {
-                        final regex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
-                        if (!regex.hasMatch(v)) return 'Invalid email';
-                      }
-                      return null;
-                    },
-                  ),
+                  _buildTextField('ime', 'Ime'),
+                  _buildTextField('prezime', 'Prezime'),
+                  _buildPhoneField(),
+                  _buildEmailField(),
                 ] else ...[
-                  // Dropdown za odabir korisnika kod dodavanja
-                  _korisniciResult == null
-                      ? Center(child: CircularProgressIndicator())
-                      : DropdownButtonFormField<Korisnik>(
-                          value: _selectedKorisnik,
-                          decoration:
-                              InputDecoration(labelText: "Odaberi korisnika"),
-                          items: _korisniciResult!.result.map((k) {
-                            return DropdownMenuItem<Korisnik>(
-                              value: k,
-                              child: Text("${k.ime} ${k.prezime}"),
-                            );
-                          }).toList(),
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedKorisnik = value;
-                            });
-                          },
-                          validator: (v) =>
-                              v == null ? 'Morate odabrati korisnika' : null,
-                        ),
-                  SizedBox(height: 8),
+                  _buildDropdown(),
                 ],
-                SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: OutlinedButton(
-                        onPressed: () async {
-                          final canLeave = await _confirmDiscardIfNeeded();
-                          if (canLeave) Navigator.of(context).pop(false);
-                        },
-                        child: const Text("Odustani"),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orangeAccent,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 32, vertical: 12),
-                          textStyle: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12)),
-                        ),
-                        onPressed: _submitForm,
-                        child: Text(isEditing ? 'Spasi' : 'Dodaj'),
-                      ),
-                    ),
-                  ],
-                ),
+                const SizedBox(height: 24),
+                _buildButtons(),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildTextField(String name, String label) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: FormBuilderTextField(
+        name: name,
+        decoration: InputDecoration(labelText: label),
+        validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+      ),
+    );
+  }
+
+  Widget _buildPhoneField() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: FormBuilderTextField(
+        name: 'telefon',
+        decoration: const InputDecoration(labelText: 'Telefon'),
+        keyboardType: TextInputType.number,
+        inputFormatters: [
+          FilteringTextInputFormatter.digitsOnly,
+          LengthLimitingTextInputFormatter(9),
+        ],
+        validator: (v) {
+          if (v == null || v.isEmpty) return 'Required';
+          if (!RegExp(r'^\d{9}$').hasMatch(v)) {
+            return 'Telefon mora imati 9 cifara';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+  Widget _buildEmailField() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: FormBuilderTextField(
+        name: 'email',
+        decoration: const InputDecoration(labelText: 'Email'),
+        validator: (v) {
+          if (v != null && v.isNotEmpty) {
+            if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(v)) {
+              return 'Invalid email';
+            }
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+  Widget _buildDropdown() {
+    if (_korisniciResult == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    return DropdownButtonFormField<Korisnik>(
+      decoration: const InputDecoration(labelText: "Odaberi korisnika"),
+      value: _selectedKorisnik,
+      items: _korisniciResult!.result
+          .map(
+            (k) => DropdownMenuItem(
+              value: k,
+              child: Text('${k.ime} ${k.prezime}'),
+            ),
+          )
+          .toList(),
+      onChanged: (v) => setState(() => _selectedKorisnik = v),
+      validator: (v) => v == null ? 'Morate odabrati korisnika' : null,
+    );
+  }
+
+  Widget _buildButtons() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        OutlinedButton(
+          onPressed: () async {
+            if (await _confirmDiscardIfNeeded()) {
+              Navigator.of(context).pop(false);
+            }
+          },
+          child: const Text("Odustani"),
+        ),
+        const SizedBox(width: 16),
+        ElevatedButton(
+          onPressed: _submitForm,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.orangeAccent,
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          child: Text(widget.klijenti == null ? 'Dodaj' : 'Spasi'),
+        ),
+      ],
     );
   }
 }
