@@ -44,6 +44,24 @@ class _KorisnikProfileScreen extends State<KorisnikProfileScreen> {
     }
   }
 
+  ImageProvider? getProfileImage(String? slika) {
+    if (slika == null || slika.trim().isEmpty) {
+      return null;
+    }
+
+    if (slika.startsWith('http')) {
+      return NetworkImage(slika);
+    }
+
+    try {
+      final cleanBase64 = slika.contains(',') ? slika.split(',').last : slika;
+      return MemoryImage(base64Decode(cleanBase64));
+    } catch (e) {
+      debugPrint("Neispravna slika: $e");
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final korisnik = korisnikResult?.first;
@@ -88,14 +106,8 @@ class _KorisnikProfileScreen extends State<KorisnikProfileScreen> {
                           CircleAvatar(
                             radius: 60,
                             backgroundColor: Colors.pink.shade200,
-                            backgroundImage: korisnik.slika != null
-                                ? (korisnik.slika!.startsWith('http')
-                                    ? NetworkImage(korisnik.slika!)
-                                    : MemoryImage(
-                                        base64Decode(korisnik.slika!),
-                                      )) as ImageProvider
-                                : null,
-                            child: korisnik.slika == null
+                            backgroundImage: getProfileImage(korisnik.slika),
+                            child: getProfileImage(korisnik.slika) == null
                                 ? const Icon(Icons.person,
                                     size: 60, color: Colors.white)
                                 : null,

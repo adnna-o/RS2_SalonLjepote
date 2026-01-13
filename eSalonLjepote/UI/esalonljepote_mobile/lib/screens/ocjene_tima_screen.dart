@@ -102,6 +102,11 @@ class _OcjeneTimaScreen extends State<OcjeneTimaScreen> {
             ? mutableFormData['korisnikId']
             : int.tryParse(mutableFormData['korisnikId'].toString()) ?? 0;
       }
+      if (mutableFormData['datumRecenzije'] != null &&
+          mutableFormData['datumRecenzije'] is DateTime) {
+        mutableFormData['datumRecenzije'] =
+            (mutableFormData['datumRecenzije'] as DateTime).toIso8601String();
+      }
 
       try {
         String successMessage;
@@ -347,9 +352,7 @@ class _OcjeneTimaScreen extends State<OcjeneTimaScreen> {
                         );
                       }),
                     ),
-
                     SizedBox(height: 12),
-
                     Text(
                       e.opisRecenzije ?? "",
                       style: TextStyle(fontSize: 15),
